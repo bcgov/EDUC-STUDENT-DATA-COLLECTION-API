@@ -1,11 +1,15 @@
 package ca.bc.gov.educ.studentdatacollection.api.reports;
+
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueSeverityCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssueTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
-import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity;
+import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity;
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.service.v1.SdcSchoolCollectionStudentSearchService;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.FacilityTypeCode;
@@ -151,7 +155,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFrenchFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllFrenchStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "French Program")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "French Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -176,7 +180,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateCareerFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllCareerStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Career Program", "Career Code")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "Career Program", "Career Code")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -201,7 +205,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateIndigenousFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllIndigenousStudentsLightBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, INDIGENOUS_ANCESTRY, BAND_CODE, "Indigenous Support Program")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, INDIGENOUS_ANCESTRY, BAND_CODE, "Indigenous Support Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -226,7 +230,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateInclusiveFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllInclusiveEdStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Inclusive Education Category")
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "Inclusive Education Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -251,7 +255,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateEllFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllEllStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Language Program", YEARS_ELL)
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "Language Program", YEARS_ELL)
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -276,7 +280,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateRefugeeFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllRefugeeStudentsLightBySchoolCollectionId(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, "Funding Eligible", LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE)
+                .setHeader(PEN, LEGAL_NAME, USUAL_NAME, FTE, "Funding Eligible", LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE)
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -357,7 +361,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateFrenchFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllFrenchStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "French Program")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "French Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -382,7 +386,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateCareerFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllCareerStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Career Program", "Career Code")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "Career Program", "Career Code")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -407,7 +411,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateIndigenousFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllIndigenousStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE,
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE,
                         INDIGENOUS_ANCESTRY, BAND_CODE, "Indigenous Support Program")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
@@ -433,7 +437,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateInclusiveFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentSearchService.findAllInclusiveEdStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Inclusive Education Category")
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "Inclusive Education Category")
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -458,7 +462,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateEllFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithEnrolledProgramCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllEllStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE, "Language Program", YEARS_ELL)
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, PROGRAM_ELIGIBLE, LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE, "Language Program", YEARS_ELL)
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -483,7 +487,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateRefugeeFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentLightWithValidationIssueCodesEntity> entities = sdcSchoolCollectionStudentSearchService.findAllRefugeeStudentsLightByDistrictCollectionId(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, "Funding Eligible", LOCAL_ID,  ADULT, GRADUATE, GRADE, FUNDING_CODE)
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, PEN, LEGAL_NAME, USUAL_NAME, FTE, "Funding Eligible", LOCAL_ID, ADULT, GRADUATE, GRADE, FUNDING_CODE)
                 .build();
         try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
              BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(byteArrayOutputStream));
@@ -568,11 +572,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         return csvRowData;
     }
 
-    private String getErrorsAndWarningString(SdcSchoolCollectionStudentEntity student){
+    private String getErrorsAndWarningString(SdcSchoolCollectionStudentEntity student) {
         StringBuilder builder = new StringBuilder();
         var errorAndWarnSet = new HashSet<String>();
         student.getSDCStudentValidationIssueEntities().forEach(sdcSchoolCollectionStudentValidationIssueEntity -> {
-            if(!errorAndWarnSet.contains(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode())) {
+            if (!errorAndWarnSet.contains(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode())) {
                 var optIssueCode = StudentValidationIssueSeverityCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueSeverityCode());
                 var issueTypeCode = StudentValidationIssueTypeCode.findByValue(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
                 builder.append(optIssueCode.isPresent() ? optIssueCode.get().getLabel() : "N/A");
@@ -582,7 +586,7 @@ public class AllStudentLightCollectionGenerateCsvService {
                 errorAndWarnSet.add(sdcSchoolCollectionStudentValidationIssueEntity.getValidationIssueCode());
             }
         });
-        if(!builder.isEmpty()) {
+        if (!builder.isEmpty()) {
             return StringUtils.removeEnd(builder.toString(), "\n");
         }
         return "";
@@ -611,41 +615,41 @@ public class AllStudentLightCollectionGenerateCsvService {
         Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes(), "1");
 
         csvRowData.addAll(Arrays.asList(
-                    student.getStudentPen(),
-                    legalFullName,
-                    usualFullName,
-                    student.getDob(),
-                    student.getGender(),
-                    student.getPostalCode(),
-                    student.getLocalID(),
-                    student.getEnrolledGradeCode(),
-                    student.getFte(),
-                    Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
-                    Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
-                    feePayer,
-                    refugee,
-                    convertToBinary(student.getNativeAncestryInd()),
-                    ordinarilyResidentOnReserve,
-                    student.getBandCode(),
-                    student.getHomeLanguageSpokenCode(),
-                    student.getNumberOfCoursesDec() != null ? student.getNumberOfCoursesDec() : "",
-                    student.getSupportBlocks(),
-                    student.getOtherCourses(),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CORE_FRENCH.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()),
-                    student.getYearsInEll(),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()),
-                    student.getCareerProgramCode(),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_PREPARATION.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.COOP.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.YOUTH_WORK_IN_TRADES.getCode()),
-                    enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()),
-                    student.getSpecialEducationCategoryCode()
+                student.getStudentPen(),
+                legalFullName,
+                usualFullName,
+                student.getDob(),
+                student.getGender(),
+                student.getPostalCode(),
+                student.getLocalID(),
+                student.getEnrolledGradeCode(),
+                student.getFte(),
+                Boolean.TRUE.equals(student.getIsAdult()) ? "1" : "",
+                Boolean.TRUE.equals(student.getIsGraduated()) ? "1" : "",
+                feePayer,
+                refugee,
+                convertToBinary(student.getNativeAncestryInd()),
+                ordinarilyResidentOnReserve,
+                student.getBandCode(),
+                student.getHomeLanguageSpokenCode(),
+                student.getNumberOfCoursesDec() != null ? student.getNumberOfCoursesDec() : "",
+                student.getSupportBlocks(),
+                student.getOtherCourses(),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.CORE_FRENCH.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.LATE_FRENCH_IMMERSION.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.ENGLISH_LANGUAGE_LEARNING.getCode()),
+                student.getYearsInEll(),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_LANGUAGE.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.ABORIGINAL_SUPPORT.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.OTHER_APPROVED_NATIVE.getCode()),
+                student.getCareerProgramCode(),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_PREPARATION.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.COOP.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.YOUTH_WORK_IN_TRADES.getCode()),
+                enrolledProgramCodesMap.get(EnrolledProgramCodes.CAREER_TECHNICAL_CENTER.getCode()),
+                student.getSpecialEducationCategoryCode()
         ));
         return csvRowData;
     }
@@ -906,7 +910,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     }
 
     public Map<String, String> parseEnrolledProgramCodes(String enrolledProgramCodes, String displayValue) {
-        Map<String, String> codesMap = Arrays.stream(new String[] {
+        Map<String, String> codesMap = Arrays.stream(new String[]{
                 EnrolledProgramCodes.PROGRAMME_FRANCOPHONE.getCode(),
                 EnrolledProgramCodes.CORE_FRENCH.getCode(),
                 EnrolledProgramCodes.EARLY_FRENCH_IMMERSION.getCode(),
