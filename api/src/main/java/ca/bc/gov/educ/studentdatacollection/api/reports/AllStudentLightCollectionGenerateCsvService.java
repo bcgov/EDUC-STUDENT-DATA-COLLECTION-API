@@ -5,6 +5,7 @@ import ca.bc.gov.educ.studentdatacollection.api.constants.StudentValidationIssue
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.DistrictReportTypeCode;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.EnrolledProgramCodes;
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolReportTypeCode;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SdcSchoolStudentStatus;
 import ca.bc.gov.educ.studentdatacollection.api.exception.StudentDataCollectionAPIRuntimeException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentLightEntity;
@@ -82,7 +83,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     private static final String APPRENTICE = "Apprentice";
     private static final String CTC = "CTC - Career Technical C.";
     private static final String INCLUSIVE_ED_CATEGORY = "Inclusive Ed Category";
-    private static final String STATUS_CODE = "Status Code";
+    private static final String STUDENT_STATUS = "Student Status";
 
     // WARNING MESSAGES
     private static final String NO_SCHOOL_CODE_FOUND = "No School Code Found";
@@ -100,7 +101,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcSchoolCollectionID(UUID sdcSchoolCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoBySchoolCollectionID(sdcSchoolCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(STATUS_CODE, ERR_AND_WARN, PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
+                .setHeader(STUDENT_STATUS, ERR_AND_WARN, PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
                         REFUGEE, INDIGENOUS_ANCESTRY, ORD_RESIDENT_ON_RESERVE, BAND_CODE, HOME_LANG, NUMBER_COURSES, NUMBER_SUPPORT_BLOCKS, NUMBER_OTHER_COURSES,
                         PROG_FRANCO, CORE_FRENCH, EARLY_IMMERSION, LATE_IMMERSION, ELL, YEARS_ELL, IND_CULTURE_LANG, IND_SUPPORT, INDIGENOUS_OTHER,
                         CAREER_PROG, CAREER_PREP, COOP, APPRENTICE, CTC, INCLUSIVE_ED_CATEGORY)
@@ -306,7 +307,7 @@ public class AllStudentLightCollectionGenerateCsvService {
     public DownloadableReportResponse generateErrorWarnInfoReportFromSdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
         List<SdcSchoolCollectionStudentEntity> entities = sdcSchoolCollectionStudentSearchService.findAllStudentsWithErrorsWarningInfoByDistrictCollectionID(sdcDistrictCollectionID);
         CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
-                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, STATUS_CODE, ERR_AND_WARN, PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
+                .setHeader(SCHOOL_CODE, SCHOOL_NAME, FACILITY_TYPE, STUDENT_STATUS, ERR_AND_WARN, PEN, LEGAL_NAME, USUAL_NAME, BIRTH_DATE, GENDER, POSTAL_CODE, LOCAL_ID, GRADE, FTE, ADULT, GRADUATE, FEE_PAYER,
                         REFUGEE, INDIGENOUS_ANCESTRY, ORD_RESIDENT_ON_RESERVE, BAND_CODE, HOME_LANG, NUMBER_COURSES, NUMBER_SUPPORT_BLOCKS, NUMBER_OTHER_COURSES,
                         PROG_FRANCO, CORE_FRENCH, EARLY_IMMERSION, LATE_IMMERSION, ELL, YEARS_ELL, IND_CULTURE_LANG, IND_SUPPORT, INDIGENOUS_OTHER,
                         CAREER_PROG, CAREER_PREP, COOP, APPRENTICE, CTC, INCLUSIVE_ED_CATEGORY)
@@ -531,9 +532,11 @@ public class AllStudentLightCollectionGenerateCsvService {
         String refugee = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("16") ? "1" : "";
         String ordinarilyResidentOnReserve = student.getSchoolFundingCode() != null && student.getSchoolFundingCode().contentEquals("20") ? "1" : "";
         Map<String, String> enrolledProgramCodesMap = parseEnrolledProgramCodes(student.getEnrolledProgramCodes(), "1");
+        var optIssueCode = SdcSchoolStudentStatus.findByValue(student.getSdcSchoolCollectionStudentStatusCode());
+        String studentStatus = optIssueCode.isPresent() ? optIssueCode.get().getLabel() : "N/A";
 
         csvRowData.addAll(Arrays.asList(
-                student.getSdcSchoolCollectionStudentStatusCode(),
+                studentStatus,
                 getErrorsAndWarningString(student),
                 student.getStudentPen(),
                 legalFullName,
