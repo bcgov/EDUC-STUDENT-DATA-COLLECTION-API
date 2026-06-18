@@ -1,6 +1,7 @@
 package ca.bc.gov.educ.studentdatacollection.api.helpers;
 
 import ca.bc.gov.educ.studentdatacollection.api.constants.v1.CollectionTypeCodes;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.SchoolGradeCodes;
 import ca.bc.gov.educ.studentdatacollection.api.exception.EntityNotFoundException;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcDistrictCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
@@ -36,7 +37,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
   protected List<String> gradeCodes;
 
   private static final String TITLE = "title";
-  public static final String SECTION="section";
+  public static final String SECTION = "section";
   private final RestUtils restUtils;
 
   public HeadcountHelper(SdcSchoolCollectionRepository sdcSchoolCollectionRepository, SdcSchoolCollectionStudentRepository sdcSchoolCollectionStudentRepository, SdcDistrictCollectionRepository sdcDistrictCollectionRepository, RestUtils restUtils) {
@@ -63,7 +64,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
     List<Map<String, HeadcountHeaderColumn>> rows = collectionData.getRows();
     IntStream.range(0, rows.size())
             .forEach(i -> {
-              var  currentData = collectionData.getRows().get(i);
+              var currentData = collectionData.getRows().get(i);
               boolean previousCollectionHasData = i < previousCollectionData.getRows().size();
               if(previousCollectionHasData) {
                 var previousData = previousCollectionData.getRows().get(i);

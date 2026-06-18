@@ -149,27 +149,31 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     return studentTotals;
   }
 
+  private Function<EnrollmentHeadcountResult, String> excludeHomeschool(Function<EnrollmentHeadcountResult, String> method) {
+    return result -> SchoolGradeCodes.HOMESCHOOL.getCode().equals(result.getEnrolledGradeCode()) ? "0" : method.apply(result);
+  }
 
   private Map<String, Function<EnrollmentHeadcountResult, String>> getHeadcountMethods() {
     Map<String, Function<EnrollmentHeadcountResult, String>> headcountMethods = new HashMap<>();
     headcountMethods.put(UNDER_SCHOOL_AGED_KEY, null);
     headcountMethods.put(UNDER_SCHOOL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getUnderSchoolAgedHeadcount);
-    headcountMethods.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getUnderSchoolAgedEligibleForFte);
-    headcountMethods.put(UNDER_SCHOOL_AGED_FTE_KEY, EnrollmentHeadcountResult::getUnderSchoolAgedFteTotal);
+    headcountMethods.put(UNDER_SCHOOL_AGED_ELIGIBLEKEY, excludeHomeschool(EnrollmentHeadcountResult::getUnderSchoolAgedEligibleForFte));
+    headcountMethods.put(UNDER_SCHOOL_AGED_FTE_KEY, excludeHomeschool(EnrollmentHeadcountResult::getUnderSchoolAgedFteTotal));
     headcountMethods.put(SCHOOL_AGED_KEY, null);
     headcountMethods.put(SCHOOL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getSchoolAgedHeadcount);
-    headcountMethods.put(SCHOOL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getSchoolAgedEligibleForFte);
-    headcountMethods.put(SCHOOL_AGED_FTE_KEY, EnrollmentHeadcountResult::getSchoolAgedFteTotal);
+    headcountMethods.put(SCHOOL_AGED_ELIGIBLEKEY, excludeHomeschool(EnrollmentHeadcountResult::getSchoolAgedEligibleForFte));
+    headcountMethods.put(SCHOOL_AGED_FTE_KEY, excludeHomeschool(EnrollmentHeadcountResult::getSchoolAgedFteTotal));
     headcountMethods.put(ADULT_AGED_KEY, null);
     headcountMethods.put(ADULT_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getAdultHeadcount);
-    headcountMethods.put(ADULT_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getAdultEligibleForFte);
-    headcountMethods.put(ADULT_AGED_FTE_KEY, EnrollmentHeadcountResult::getAdultFteTotal);
+    headcountMethods.put(ADULT_AGED_ELIGIBLEKEY, excludeHomeschool(EnrollmentHeadcountResult::getAdultEligibleForFte));
+    headcountMethods.put(ADULT_AGED_FTE_KEY, excludeHomeschool(EnrollmentHeadcountResult::getAdultFteTotal));
     headcountMethods.put(ALL_AGED_KEY, null);
     headcountMethods.put(ALL_AGED_HEADCOUNT_KEY, EnrollmentHeadcountResult::getTotalHeadcount);
-    headcountMethods.put(ALL_AGED_ELIGIBLEKEY, EnrollmentHeadcountResult::getTotalEligibleForFte);
-    headcountMethods.put(ALL_AGED_FTE_KEY, EnrollmentHeadcountResult::getTotalFteTotal);
+    headcountMethods.put(ALL_AGED_ELIGIBLEKEY, excludeHomeschool(EnrollmentHeadcountResult::getTotalEligibleForFte));
+    headcountMethods.put(ALL_AGED_FTE_KEY, excludeHomeschool(EnrollmentHeadcountResult::getTotalFteTotal));
     return headcountMethods;
   }
+
   private Map<String, String> getSelectionTitles() {
     Map<String, String> sectionTitles = new HashMap<>();
     sectionTitles.put(UNDER_SCHOOL_AGED_KEY, UNDER_SCHOOL_AGED_TITLE);
@@ -190,6 +194,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
     sectionTitles.put(ALL_AGED_FTE_KEY, ALL_STUDENT_TITLE);
     return sectionTitles;
   }
+
   private Map<String, String> getRowTitles() {
     Map<String, String> rowTitles = new LinkedHashMap<>();
     rowTitles.put(UNDER_SCHOOL_AGED_KEY, UNDER_SCHOOL_AGED_TITLE);
@@ -312,7 +317,8 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
             sectionTotal = sectionTotal.add(new BigDecimal(totalHeadcountPerGrade));
           }
           else if(row.getKey().equals(TOTAL_FTE_TITLE)) {
-            double totalFtePerGrade = results.stream().filter(grade -> grade.getEnrolledGradeCode().equals(gradeCode))
+            boolean isHomeschool = gradeCode.equals(SchoolGradeCodes.HOMESCHOOL.getCode());
+            double totalFtePerGrade = isHomeschool ? 0 : results.stream().filter(grade -> grade.getEnrolledGradeCode().equals(gradeCode))
                     .map(EnrollmentHeadcountResult::getTotalFteTotal).mapToDouble(Double::valueOf).sum();
             totalRowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(String.format("%,.4f", BigDecimal.valueOf(totalFtePerGrade))).build());
             sectionTotal = sectionTotal.add(BigDecimal.valueOf(totalFtePerGrade));
