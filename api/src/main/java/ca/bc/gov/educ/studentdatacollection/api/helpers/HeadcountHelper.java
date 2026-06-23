@@ -64,7 +64,7 @@ public class HeadcountHelper<T extends HeadcountResult> {
     List<Map<String, HeadcountHeaderColumn>> rows = collectionData.getRows();
     IntStream.range(0, rows.size())
             .forEach(i -> {
-              var currentData = collectionData.getRows().get(i);
+              Map<String, HeadcountHeaderColumn> currentData = collectionData.getRows().get(i);
               boolean previousCollectionHasData = i < previousCollectionData.getRows().size();
               if(previousCollectionHasData) {
                 var previousData = previousCollectionData.getRows().get(i);
