@@ -297,8 +297,7 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       rows.add(rowData);
     }
   }
-
-  public void createAllSchoolSection(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results) {
+  public void createAllSchoolSectionOld(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results) {
     for (Map.Entry<String, String> row : allSchoolRowTitles.entrySet()) {
       Map<String, HeadcountHeaderColumn> totalRowData = new LinkedHashMap<>();
       BigDecimal sectionTotal = BigDecimal.ZERO;
@@ -330,5 +329,67 @@ public class EnrollmentHeadcountHelper extends HeadcountHelper<EnrollmentHeadcou
       totalRowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(section).build());
       rows.add(totalRowData);
     }
+  }
+  public void createAllSchoolSection(List<Map<String, HeadcountHeaderColumn>> rows, List<EnrollmentHeadcountResult> results) {
+    for (Map.Entry<String, String> row : allSchoolRowTitles.entrySet()) {
+      rows.add(buildAllSchoolRow(row, results));
+    }
+  }
+  private Map<String, HeadcountHeaderColumn> buildAllSchoolRow(Map.Entry<String, String> row, List<EnrollmentHeadcountResult> results) {
+    Map<String, HeadcountHeaderColumn> rowData = new LinkedHashMap<>();
+    String rowTitle = row.getKey().equals(ALL_SCHOOLS) ? ALL_SCHOOLS : row.getValue();
+    rowData.put(TITLE, HeadcountHeaderColumn.builder().currentValue(rowTitle).build());
+    rowData.put(SECTION, HeadcountHeaderColumn.builder().currentValue(allSchoolSectionTitles.get(row.getKey())).build());
+
+    if (row.getValue() != null) {
+      populateAllSchoolGradeColumns(rowData, row.getKey(), results);
+    }
+
+    return rowData;
+  }
+  private void populateAllSchoolGradeColumns(Map<String, HeadcountHeaderColumn> rowData, String rowKey, List<EnrollmentHeadcountResult> results) {
+    BigDecimal sectionTotal = BigDecimal.ZERO;
+
+    for (String gradeCode : gradeCodes) {
+      BigDecimal gradeValue = calculateGradeValue(rowKey, gradeCode, results);
+      String formattedValue = formatGradeValue(rowKey, gradeValue);
+      rowData.put(gradeCode, HeadcountHeaderColumn.builder().currentValue(formattedValue).build());
+      sectionTotal = sectionTotal.add(gradeValue);
+    }
+
+    rowData.put(TOTAL_TITLE, HeadcountHeaderColumn.builder().currentValue(String.format("%,.4f", sectionTotal)).build());
+  }
+  private BigDecimal calculateGradeValue(String rowKey, String gradeCode, List<EnrollmentHeadcountResult> results) {
+    if (rowKey.equals(HEADCOUNT_TITLE)) {
+      return calculateTotalHeadcountForGrade(gradeCode, results);
+    } else if (rowKey.equals(TOTAL_FTE_TITLE)) {
+      return calculateTotalFteForGrade(gradeCode, results);
+    }
+    return BigDecimal.ZERO;
+  }
+  private BigDecimal calculateTotalHeadcountForGrade(String gradeCode, List<EnrollmentHeadcountResult> results) {
+    int total = results.stream()
+            .filter(grade -> grade.getEnrolledGradeCode().equals(gradeCode))
+            .map(EnrollmentHeadcountResult::getTotalHeadcount)
+            .mapToInt(Integer::valueOf)
+            .sum();
+    return new BigDecimal(total);
+  }
+  private BigDecimal calculateTotalFteForGrade(String gradeCode, List<EnrollmentHeadcountResult> results) {
+    if (gradeCode.equals(SchoolGradeCodes.HOMESCHOOL.getCode())) {
+      return BigDecimal.ZERO;
+    }
+    double total = results.stream()
+            .filter(grade -> grade.getEnrolledGradeCode().equals(gradeCode))
+            .map(EnrollmentHeadcountResult::getTotalFteTotal)
+            .mapToDouble(Double::valueOf)
+            .sum();
+    return BigDecimal.valueOf(total);
+  }
+  private String formatGradeValue(String rowKey, BigDecimal value) {
+    if (rowKey.equals(HEADCOUNT_TITLE)) {
+      return String.valueOf(value.intValue());
+    }
+    return String.format("%,.4f", value);
   }
 }
