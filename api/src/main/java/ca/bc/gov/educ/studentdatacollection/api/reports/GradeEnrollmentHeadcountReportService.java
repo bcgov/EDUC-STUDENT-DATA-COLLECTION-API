@@ -70,7 +70,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
       SdcSchoolCollectionEntity sdcSchoolCollectionEntity = sdcSchoolCollectionEntityOptional.orElseThrow(() ->
               new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcSchoolCollectionID", sdcSchoolCollectionID.toString()));
 
-      var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
+      List<EnrollmentHeadcountResult> gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcSchoolCollectionId(sdcSchoolCollectionEntity.getSdcSchoolCollectionID());
       return generateJasperReport(convertToGradeEnrollmentReportJSONString(gradeEnrollmentList, sdcSchoolCollectionEntity), gradeEnrollmentHeadcountReport, SchoolReportTypeCode.GRADE_ENROLLMENT_HEADCOUNT.getCode());
     } catch (JsonProcessingException e) {
       log.error("Exception occurred while writing PDF report for grade enrolment :: " + e.getMessage());
@@ -84,7 +84,7 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
       SdcDistrictCollectionEntity sdcDistrictCollectionEntity = sdcDistrictCollectionEntityOptional.orElseThrow(() ->
               new EntityNotFoundException(SdcSchoolCollectionEntity.class, "sdcDistrictCollectionID", sdcDistrictCollectionID.toString()));
 
-      var gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
+      List<EnrollmentHeadcountResult> gradeEnrollmentList = sdcSchoolCollectionStudentRepository.getEnrollmentHeadcountsBySdcDistrictCollectionId(sdcDistrictCollectionEntity.getSdcDistrictCollectionID());
       return generateJasperReport(convertToGradeEnrollmentReportJSONStringDistrict(gradeEnrollmentList, sdcDistrictCollectionEntity), gradeEnrollmentHeadcountReport, DistrictReportTypeCode.DIS_GRADE_ENROLLMENT_HEADCOUNT.getCode());
     } catch (JsonProcessingException e) {
       log.error("Exception occurred while writing PDF report for grade enrolment dis :: " + e.getMessage());
@@ -146,23 +146,30 @@ public class GradeEnrollmentHeadcountReportService extends BaseReportGenerationS
     nodeMap.put(sectionPrefix + "FTETotal", new GradeHeadcountChildNode("FTE Total", FALSE, sequencePrefix + "3", true, true, true, includeKH));
   }
 
+  private String doNotIncludeHomeSchoolNumbers(SchoolGradeCodes code, String gradeResultString) {
+    if (code == SchoolGradeCodes.HOMESCHOOL) {
+      return "0";
+    }
+    return gradeResultString;
+  }
+
   public void setRowValues(HashMap<String, HeadcountChildNode> nodeMap, EnrollmentHeadcountResult gradeResult) {
     Optional<SchoolGradeCodes> optionalCode = SchoolGradeCodes.findByValue(gradeResult.getEnrolledGradeCode());
-    var code = optionalCode.orElseThrow(() ->
+    SchoolGradeCodes code = optionalCode.orElseThrow(() ->
             new EntityNotFoundException(SchoolGradeCodes.class, "Grade Value", gradeResult.getEnrolledGradeCode()));
 
     try {
       ((GradeHeadcountChildNode)nodeMap.get("schoolAgedHeadcount")).setValueForGrade(code, gradeResult.getSchoolAgedHeadcount());
-      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedEligibleForFTE")).setValueForGrade(code, gradeResult.getSchoolAgedEligibleForFte());
-      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getSchoolAgedFteTotal()).doubleValue()));
+      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedEligibleForFTE")).setValueForGrade(code, doNotIncludeHomeSchoolNumbers(code, gradeResult.getSchoolAgedEligibleForFte()));
+      ((GradeHeadcountChildNode)nodeMap.get("schoolAgedFTETotal")).setValueForGrade(code, doNotIncludeHomeSchoolNumbers(code, String.format("%.4f", numberFormat.parse(gradeResult.getSchoolAgedFteTotal()).doubleValue())));
 
       ((GradeHeadcountChildNode)nodeMap.get("adultHeadcount")).setValueForGrade(code, gradeResult.getAdultHeadcount());
-      ((GradeHeadcountChildNode)nodeMap.get("adultEligibleForFTE")).setValueForGrade(code, gradeResult.getAdultEligibleForFte());
-      ((GradeHeadcountChildNode)nodeMap.get("adultFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getAdultFteTotal()).doubleValue()));
+      ((GradeHeadcountChildNode)nodeMap.get("adultEligibleForFTE")).setValueForGrade(code, doNotIncludeHomeSchoolNumbers(code, gradeResult.getAdultEligibleForFte()));
+      ((GradeHeadcountChildNode)nodeMap.get("adultFTETotal")).setValueForGrade(code, doNotIncludeHomeSchoolNumbers(code, String.format("%.4f", numberFormat.parse(gradeResult.getAdultFteTotal()).doubleValue())));
 
       ((GradeHeadcountChildNode)nodeMap.get("allHeadcount")).setValueForGrade(code, gradeResult.getTotalHeadcount());
-      ((GradeHeadcountChildNode)nodeMap.get("allEligibleForFTE")).setValueForGrade(code, gradeResult.getTotalEligibleForFte());
-      ((GradeHeadcountChildNode)nodeMap.get("allFTETotal")).setValueForGrade(code, String.format("%.4f", numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue()));
+      ((GradeHeadcountChildNode)nodeMap.get("allEligibleForFTE")).setValueForGrade(code, doNotIncludeHomeSchoolNumbers(code, gradeResult.getTotalEligibleForFte()));
+      ((GradeHeadcountChildNode)nodeMap.get("allFTETotal")).setValueForGrade(code, doNotIncludeHomeSchoolNumbers(code, String.format("%.4f", numberFormat.parse(gradeResult.getTotalFteTotal()).doubleValue())));
     } catch (ParseException e) {
       log.error("Exception occurred while writing PDF report for grade enrolment dis - parse error :: " + e.getMessage());
       throw new StudentDataCollectionAPIRuntimeException("Exception occurred while writing PDF report for grade enrolment dis - parse error :: " + e.getMessage());
