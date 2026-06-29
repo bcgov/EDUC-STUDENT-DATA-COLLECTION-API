@@ -2,6 +2,7 @@ package ca.bc.gov.educ.studentdatacollection.api.repository;
 
 import ca.bc.gov.educ.studentdatacollection.api.BaseStudentDataCollectionAPITest;
 import ca.bc.gov.educ.studentdatacollection.api.StudentDataCollectionApiApplication;
+import ca.bc.gov.educ.studentdatacollection.api.constants.v1.ProgramEligibilityIssueCode;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEnrolledProgramEntity;
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStudentEntity;
@@ -18,13 +19,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @Slf4j
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -487,6 +493,8 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(1).setStudentPen("444555666");
         students.get(1).setLegalLastName("Jones");
         sdcSchoolCollectionStudentRepository.saveAll(students);
+        setEnrolledProgramCode(students.get(0), "17");
+        setEnrolledProgramCode(students.get(1), "17");
 
         SdcStudentEllEntity ellRecord0 = createMockStudentEllEntity(students.get(0));
         ellRecord0.setYearsInEll(5);
@@ -522,6 +530,7 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(0).setStudentPen("777888999");
         students.get(0).setLegalLastName("Williams");
         sdcSchoolCollectionStudentRepository.saveAll(students);
+        setEnrolledProgramCode(students.get(0), "17");
 
         List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
                 .getEllStudentsByFallCollectionId(collection.getCollectionID());
@@ -548,6 +557,8 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(1).setStudentPen("222000222");
         students.get(1).setLegalLastName("NoEll");
         sdcSchoolCollectionStudentRepository.saveAll(students);
+        setEnrolledProgramCode(students.get(0), "17");
+        setEnrolledProgramCode(students.get(1), "17");
 
         SdcStudentEllEntity ellRecord = createMockStudentEllEntity(students.get(0));
         ellRecord.setYearsInEll(6);
@@ -577,6 +588,8 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(1).setYearsInEll(1);
         students.get(1).setAssignedStudentId(UUID.randomUUID());
         sdcSchoolCollectionStudentRepository.saveAll(students);
+        setEnrolledProgramCode(students.get(0), "17");
+        setEnrolledProgramCode(students.get(1), "17");
 
         List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
                 .getEllStudentsByFallCollectionId(collection.getCollectionID());
@@ -599,11 +612,142 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
         students.get(1).setYearsInEll(3);
         students.get(1).setAssignedStudentId(UUID.randomUUID());
         sdcSchoolCollectionStudentRepository.saveAll(students);
+        setEnrolledProgramCode(students.get(0), "17");
+        setEnrolledProgramCode(students.get(1), "17");
 
         List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
                 .getEllStudentsByFallCollectionId(collection.getCollectionID());
 
         assertEquals(1, results.size());
+    }
+
+    @Test
+    void testGetEllStudentsByFallCollectionId_includesSpecificEllNonEligibleCodesWithoutRequiringProgramCode17() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var eligibleStudent = createMockSchoolStudentEntity(schoolCollection);
+        eligibleStudent.setStudentPen("100000001");
+        eligibleStudent.setLegalLastName("Eligible");
+        eligibleStudent.setYearsInEll(3);
+        eligibleStudent.setAssignedStudentId(UUID.randomUUID());
+
+        var indyStudent = createMockSchoolStudentEntity(schoolCollection);
+        indyStudent.setStudentPen("100000002");
+        indyStudent.setLegalLastName("IndyIncluded");
+        indyStudent.setYearsInEll(4);
+        indyStudent.setAssignedStudentId(UUID.randomUUID());
+        indyStudent.setEllNonEligReasonCode(ProgramEligibilityIssueCode.ELL_INDY_SCHOOL.getCode());
+
+        var fiveYearStudent = createMockSchoolStudentEntity(schoolCollection);
+        fiveYearStudent.setStudentPen("100000003");
+        fiveYearStudent.setLegalLastName("FiveYearIncluded");
+        fiveYearStudent.setYearsInEll(5);
+        fiveYearStudent.setAssignedStudentId(UUID.randomUUID());
+        fiveYearStudent.setEllNonEligReasonCode(ProgramEligibilityIssueCode.YEARS_IN_ELL.getCode());
+
+        var otherEllNonEligibleStudent = createMockSchoolStudentEntity(schoolCollection);
+        otherEllNonEligibleStudent.setStudentPen("100000004");
+        otherEllNonEligibleStudent.setLegalLastName("OtherExcluded");
+        otherEllNonEligibleStudent.setYearsInEll(6);
+        otherEllNonEligibleStudent.setAssignedStudentId(UUID.randomUUID());
+        otherEllNonEligibleStudent.setEllNonEligReasonCode(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL.getCode());
+
+        var noProgramStudent = createMockSchoolStudentEntity(schoolCollection);
+        noProgramStudent.setStudentPen("100000005");
+        noProgramStudent.setLegalLastName("NoProgramIncluded");
+        noProgramStudent.setYearsInEll(7);
+        noProgramStudent.setAssignedStudentId(UUID.randomUUID());
+
+        sdcSchoolCollectionStudentRepository.saveAll(List.of(
+                eligibleStudent,
+                indyStudent,
+                fiveYearStudent,
+                otherEllNonEligibleStudent,
+                noProgramStudent
+        ));
+
+        setEnrolledProgramCode(eligibleStudent, "17");
+        setEnrolledProgramCode(indyStudent, "17");
+        setEnrolledProgramCode(fiveYearStudent, "17");
+        setEnrolledProgramCode(otherEllNonEligibleStudent, "17");
+
+        SdcStudentEllEntity ellRecord = createMockStudentEllEntity(eligibleStudent);
+        ellRecord.setYearsInEll(8);
+        sdcStudentEllRepository.save(ellRecord);
+
+        List<EllStudentResult> results = sdcSchoolCollectionStudentRepository
+                .getEllStudentsByFallCollectionId(collection.getCollectionID());
+
+        Set<String> lastNames = results.stream().map(EllStudentResult::getLegalLastName).collect(Collectors.toSet());
+
+        assertEquals(4, results.size());
+        assertTrue(lastNames.contains("Eligible"));
+        assertTrue(lastNames.contains("IndyIncluded"));
+        assertTrue(lastNames.contains("FiveYearIncluded"));
+        assertTrue(lastNames.contains("NoProgramIncluded"));
+        assertFalse(lastNames.contains("OtherExcluded"));
+        assertEquals("8", results.stream()
+                .filter(result -> "100000001".equals(result.getStudentPen()))
+                .findFirst()
+                .orElseThrow()
+                .getYearsInEll());
+    }
+
+    @Test
+    @Transactional
+    void testStreamEllStudentsByFallCollectionId_includesSpecificEllNonEligibleCodesWithoutRequiringProgramCode17() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+
+        var eligibleStudent = createMockSchoolStudentEntity(schoolCollection);
+        eligibleStudent.setStudentPen("200000001");
+        eligibleStudent.setLegalLastName("EligibleStream");
+        eligibleStudent.setYearsInEll(3);
+        eligibleStudent.setAssignedStudentId(UUID.randomUUID());
+
+        var indyStudent = createMockSchoolStudentEntity(schoolCollection);
+        indyStudent.setStudentPen("200000002");
+        indyStudent.setLegalLastName("IndyStream");
+        indyStudent.setYearsInEll(4);
+        indyStudent.setAssignedStudentId(UUID.randomUUID());
+        indyStudent.setEllNonEligReasonCode(ProgramEligibilityIssueCode.ELL_INDY_SCHOOL.getCode());
+
+        var excludedStudent = createMockSchoolStudentEntity(schoolCollection);
+        excludedStudent.setStudentPen("200000003");
+        excludedStudent.setLegalLastName("ExcludedStream");
+        excludedStudent.setYearsInEll(5);
+        excludedStudent.setAssignedStudentId(UUID.randomUUID());
+        excludedStudent.setEllNonEligReasonCode(ProgramEligibilityIssueCode.ZERO_COURSES_ADULT_ELL.getCode());
+
+        var noProgramStudent = createMockSchoolStudentEntity(schoolCollection);
+        noProgramStudent.setStudentPen("200000004");
+        noProgramStudent.setLegalLastName("NoProgramStream");
+        noProgramStudent.setYearsInEll(6);
+        noProgramStudent.setAssignedStudentId(UUID.randomUUID());
+
+        sdcSchoolCollectionStudentRepository.saveAll(List.of(eligibleStudent, indyStudent, excludedStudent, noProgramStudent));
+
+        setEnrolledProgramCode(eligibleStudent, "17");
+        setEnrolledProgramCode(indyStudent, "17");
+        setEnrolledProgramCode(excludedStudent, "17");
+
+        List<EllStudentResult> results;
+        try (var resultStream = sdcSchoolCollectionStudentRepository.streamEllStudentsByFallCollectionId(collection.getCollectionID())) {
+            results = resultStream.toList();
+        }
+
+        Set<String> lastNames = results.stream().map(EllStudentResult::getLegalLastName).collect(Collectors.toSet());
+
+        assertEquals(3, results.size());
+        assertTrue(lastNames.contains("EligibleStream"));
+        assertTrue(lastNames.contains("IndyStream"));
+        assertTrue(lastNames.contains("NoProgramStream"));
+        assertFalse(lastNames.contains("ExcludedStream"));
     }
 
     private List<SdcSchoolCollectionStudentEntity> getSdcStudentEntities(SdcSchoolCollectionEntity sdcSchoolCollectionEntity, int numStudents) {
