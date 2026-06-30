@@ -27,6 +27,10 @@ import java.util.*;
 @Service
 @Slf4j
 public class CloseCollectionService {
+    private static final Set<String> ELL_NON_ELIGIBLE_CODES_TO_INCREMENT = Set.of(
+            ProgramEligibilityIssueCode.ELL_INDY_SCHOOL.getCode(),
+            ProgramEligibilityIssueCode.YEARS_IN_ELL.getCode()
+    );
 
     private final CollectionRepository collectionRepository;
     private final CollectionTypeCodeRepository collectionTypeCodeRepository;
@@ -210,20 +214,21 @@ public class CloseCollectionService {
     private void updateELLYears(SdcSchoolCollectionStudentEntity studentEntity) {
         final List<String> enrolledProgramCodes = validationRulesService.splitEnrolledProgramsString(studentEntity.getEnrolledProgramCodes());
 
-        if (EnrolledProgramCodes.getELLCodes().stream().anyMatch(enrolledProgramCodes::contains) && studentEntity.getEllNonEligReasonCode() == null) {
+        if (shouldIncrementEllYears(studentEntity, enrolledProgramCodes)) {
             final var studentInEllOpt = validationRulesService.getStudentYearsInEll(studentEntity.getAssignedStudentId());
             log.debug("Student years in ELL found for SDC student {} :: is {}", studentEntity.getSdcSchoolCollectionStudentID(), studentInEllOpt);
+            final int incrementedYearsInEll = getIncrementedYearsInEll(studentEntity, studentInEllOpt);
 
             if (studentInEllOpt.isPresent()) {
                 var studentInEll = studentInEllOpt.get();
-                studentInEll.setYearsInEll(studentInEll.getYearsInEll() + 1);
+                studentInEll.setYearsInEll(incrementedYearsInEll);
                 studentInEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
                 studentInEll.setUpdateDate(LocalDateTime.now());
                 sdcStudentEllRepository.save(studentInEll);
             } else {
                 SdcStudentEllEntity studentEll = new SdcStudentEllEntity();
                 studentEll.setStudentID(studentEntity.getAssignedStudentId());
-                studentEll.setYearsInEll(1);
+                studentEll.setYearsInEll(incrementedYearsInEll);
                 studentEll.setUpdateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
                 studentEll.setCreateUser(ApplicationProperties.STUDENT_DATA_COLLECTION_API);
                 studentEll.setUpdateDate(LocalDateTime.now());
@@ -231,6 +236,22 @@ public class CloseCollectionService {
                 sdcStudentEllRepository.save(studentEll);
             }
         }
+    }
+
+    private boolean shouldIncrementEllYears(SdcSchoolCollectionStudentEntity studentEntity, List<String> enrolledProgramCodes) {
+        return EnrolledProgramCodes.getELLCodes().stream().anyMatch(enrolledProgramCodes::contains)
+                && isEllReasonEligibleForIncrement(studentEntity.getEllNonEligReasonCode());
+    }
+
+    private boolean isEllReasonEligibleForIncrement(String ellNonEligReasonCode) {
+        return ellNonEligReasonCode == null || ELL_NON_ELIGIBLE_CODES_TO_INCREMENT.contains(ellNonEligReasonCode);
+    }
+
+    private int getIncrementedYearsInEll(SdcSchoolCollectionStudentEntity studentEntity, Optional<SdcStudentEllEntity> studentInEllOpt) {
+        int currentYearsInEll = studentInEllOpt
+                .map(SdcStudentEllEntity::getYearsInEll)
+                .orElse(Optional.ofNullable(studentEntity.getYearsInEll()).orElse(0));
+        return currentYearsInEll + 1;
     }
 
     public List<SchoolTombstone> getListOfSchoolIDsFromCriteria(List<CollectionCodeCriteriaEntity> collectionCodeCriteria) {
