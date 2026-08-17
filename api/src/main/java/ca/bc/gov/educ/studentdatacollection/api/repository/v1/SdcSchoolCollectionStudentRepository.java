@@ -637,8 +637,8 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND s.ellNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND s.ellNonEligReasonCode IS NOT NULL THEN s.sdcSchoolCollectionStudentID END) AS ineligibleStudents, " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' THEN s.sdcSchoolCollectionStudentID END) AS reportedStudents, " +
-          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll < 6 THEN s.sdcSchoolCollectionStudentID END) AS oneToFiveYears, " +
-          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll > 5 THEN s.sdcSchoolCollectionStudentID END) AS sixPlusYears, " +
+          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll < 5 THEN s.sdcSchoolCollectionStudentID END) AS oneToFiveYears, " +
+          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll >= 5 THEN s.sdcSchoolCollectionStudentID END) AS sixPlusYears, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
           "LEFT JOIN SdcStudentEllEntity ell " +
@@ -1335,8 +1335,12 @@ public interface SdcSchoolCollectionStudentRepository extends JpaRepository<SdcS
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' THEN s.sdcSchoolCollectionStudentID END) AS reportedStudents, " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND s.ellNonEligReasonCode IS NULL THEN s.sdcSchoolCollectionStudentID END) AS eligibleStudents, " +
           "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND s.ellNonEligReasonCode IS NOT NULL THEN s.sdcSchoolCollectionStudentID END) AS ineligibleStudents, " +
+          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll < 5 THEN s.sdcSchoolCollectionStudentID END) AS oneToFiveYears, " +
+          "COUNT(DISTINCT CASE WHEN ep.enrolledProgramCode = '17' AND ell.yearsInEll >= 5 THEN s.sdcSchoolCollectionStudentID END) AS sixPlusYears, " +
           "COUNT(DISTINCT s.sdcSchoolCollectionStudentID) AS allStudents " +
           "FROM SdcSchoolCollectionStudentEntity s " +
+          "LEFT JOIN SdcStudentEllEntity ell " +
+          "ON s.assignedStudentId = ell.studentID " +
           "LEFT JOIN s.sdcStudentEnrolledProgramEntities ep " +
           "WHERE s.sdcSchoolCollection.sdcDistrictCollectionID = :sdcDistrictCollectionID " +
           "AND s.sdcSchoolCollectionStudentStatusCode NOT IN ('ERROR', 'DELETED')")

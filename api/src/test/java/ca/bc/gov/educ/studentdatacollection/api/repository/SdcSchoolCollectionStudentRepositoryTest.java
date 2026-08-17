@@ -334,6 +334,86 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
     }
 
     @Test
+    void testGetEllHeadersBySchoolId_shouldUseZeroToFourAndFivePlusBuckets() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var schoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        sdcSchoolCollectionRepository.save(schoolCollection);
+        schoolCollectionId = schoolCollection.getSdcSchoolCollectionID();
+
+        var students = getSdcStudentEntities(schoolCollection, 4);
+        students.get(0).setAssignedStudentId(UUID.randomUUID());
+        students.get(1).setAssignedStudentId(UUID.randomUUID());
+        students.get(2).setAssignedStudentId(UUID.randomUUID());
+        students.get(3).setAssignedStudentId(UUID.randomUUID());
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        setEnrolledProgramCode(students.get(0), "17");
+        setEnrolledProgramCode(students.get(1), "17");
+        setEnrolledProgramCode(students.get(2), "17");
+        setEnrolledProgramCode(students.get(3), "14");
+
+        var zeroToFourStudent = createMockStudentEllEntity(students.get(0));
+        zeroToFourStudent.setYearsInEll(4);
+        var fivePlusStudent = createMockStudentEllEntity(students.get(1));
+        fivePlusStudent.setYearsInEll(5);
+        var zeroYearsStudent = createMockStudentEllEntity(students.get(2));
+        zeroYearsStudent.setYearsInEll(0);
+        var nonEllStudent = createMockStudentEllEntity(students.get(3));
+        nonEllStudent.setYearsInEll(6);
+        sdcStudentEllRepository.saveAll(List.of(zeroToFourStudent, fivePlusStudent, zeroYearsStudent, nonEllStudent));
+
+        var headers = sdcSchoolCollectionStudentRepository.getEllHeadersBySchoolId(schoolCollectionId);
+
+        assertEquals("3", headers.getReportedStudents());
+        assertEquals("2", headers.getOneToFiveYears());
+        assertEquals("1", headers.getSixPlusYears());
+    }
+
+    @Test
+    void testGetEllHeadersByDistrictCollectionId_shouldUseZeroToFourAndFivePlusBuckets() {
+        var collection = createMockCollectionEntity();
+        collectionRepository.save(collection);
+        var districtCollectionId = UUID.randomUUID();
+
+        var firstSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        firstSchoolCollection.setSdcDistrictCollectionID(districtCollectionId);
+        var secondSchoolCollection = createMockSdcSchoolCollectionEntity(collection, UUID.randomUUID());
+        secondSchoolCollection.setSdcDistrictCollectionID(districtCollectionId);
+        sdcSchoolCollectionRepository.saveAll(List.of(firstSchoolCollection, secondSchoolCollection));
+
+        var students = new ArrayList<SdcSchoolCollectionStudentEntity>();
+        students.addAll(getSdcStudentEntities(firstSchoolCollection, 2));
+        students.addAll(getSdcStudentEntities(secondSchoolCollection, 3));
+        students.forEach(student -> student.setAssignedStudentId(UUID.randomUUID()));
+        sdcSchoolCollectionStudentRepository.saveAll(students);
+
+        setEnrolledProgramCode(students.get(0), "17");
+        setEnrolledProgramCode(students.get(1), "17");
+        setEnrolledProgramCode(students.get(2), "17");
+        setEnrolledProgramCode(students.get(3), "17");
+        setEnrolledProgramCode(students.get(4), "14");
+
+        var fourYearsStudent = createMockStudentEllEntity(students.get(0));
+        fourYearsStudent.setYearsInEll(4);
+        var fiveYearsStudent = createMockStudentEllEntity(students.get(1));
+        fiveYearsStudent.setYearsInEll(5);
+        var sixYearsStudent = createMockStudentEllEntity(students.get(2));
+        sixYearsStudent.setYearsInEll(6);
+        var zeroYearsStudent = createMockStudentEllEntity(students.get(3));
+        zeroYearsStudent.setYearsInEll(0);
+        var nonEllStudent = createMockStudentEllEntity(students.get(4));
+        nonEllStudent.setYearsInEll(8);
+        sdcStudentEllRepository.saveAll(List.of(fourYearsStudent, fiveYearsStudent, sixYearsStudent, zeroYearsStudent, nonEllStudent));
+
+        var headers = sdcSchoolCollectionStudentRepository.getEllHeadersBySdcDistrictCollectionId(districtCollectionId);
+
+        assertEquals("4", headers.getReportedStudents());
+        assertEquals("2", headers.getOneToFiveYears());
+        assertEquals("2", headers.getSixPlusYears());
+    }
+
+    @Test
     void testGetSpecialEdHeadcountsBySchoolId_givenEligibleAndNonEligibleSpecialEdStudents_shouldReturnCorrectHeadcounts() {
 
         var collection = createMockCollectionEntity();
