@@ -1,7 +1,9 @@
 name: API CI
 
 on:
-  workflow_dispatch:  
+  workflow_dispatch: 
+  schedule:
+    - cron: '0 0 1 */6 *'
   push:
     branches:
       - master
@@ -41,6 +43,11 @@ jobs:
             ${{ runner.os }}-maven-5Jun-
       - name: Run unit tests
         run: mvn -f pom.xml clean package
+      - name: setup java 21 for sonar analysis
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 21
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:
