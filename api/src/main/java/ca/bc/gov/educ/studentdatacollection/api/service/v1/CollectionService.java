@@ -81,16 +81,22 @@ public class CollectionService {
   }
 
   public List<MonitorSdcDistrictCollection> getMonitorSdcDistrictCollectionResponse(UUID collectionID) {
+    long startTime = System.currentTimeMillis();
+    log.info("getMonitorSdcDistrictCollectionResponse: Starting for collectionID :: {}", collectionID);
     CollectionEntity collection = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString()));
 
+    long monitorQueryStart = System.currentTimeMillis();
     List<MonitorSdcDistrictCollectionQueryResponse> monitorSdcDistrictCollectionsQueryResponses = sdcDistrictCollectionRepository.findAllSdcDistrictCollectionMonitoringByCollectionID(collectionID);
+    log.info("getMonitorSdcDistrictCollectionResponse: DB query findAllSdcDistrictCollectionMonitoringByCollectionID took {} ms, found {} districts for collectionID :: {}", System.currentTimeMillis() - monitorQueryStart, monitorSdcDistrictCollectionsQueryResponses.size(), collectionID);
 
     var isCollectionComplete = collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode());
     HashMap<UUID, Integer> countMap;
 
     if(!isCollectionComplete) {
+      long dupeStart = System.currentTimeMillis();
       var duplicates = sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID);
       countMap = getDistrictDuplicatesCountMap(duplicates);
+      log.info("getMonitorSdcDistrictCollectionResponse: Provincial duplicates retrieval + count map took {} ms, found {} duplicates for collectionID :: {}", System.currentTimeMillis() - dupeStart, duplicates.size(), collectionID);
     } else {
       countMap = new HashMap<>();
     }
@@ -110,6 +116,7 @@ public class CollectionService {
       monitorSdcDistrictCollections.add(monitorSdcDistrictCollection);
     });
 
+    log.info("getMonitorSdcDistrictCollectionResponse: Completed in {} ms for collectionID :: {}. Returning {} district collections", System.currentTimeMillis() - startTime, collectionID, monitorSdcDistrictCollections.size());
     return monitorSdcDistrictCollections;
   }
 
@@ -161,15 +168,23 @@ public class CollectionService {
   }
 
   public MonitorIndySdcSchoolCollectionsResponse getMonitorIndySdcSchoolCollectionResponse(UUID collectionID) {
+    long startTime = System.currentTimeMillis();
+    log.info("getMonitorIndySdcSchoolCollectionResponse: Starting for collectionID :: {}", collectionID);
     CollectionEntity collection = collectionRepository.findById(collectionID).orElseThrow(() -> new EntityNotFoundException(CollectionEntity.class, "CollectionID", collectionID.toString()));
+
+    long monitorQueryStart = System.currentTimeMillis();
     List<MonitorIndySdcSchoolCollectionQueryResponse> monitorSdcSchoolCollectionQueryResponses = sdcSchoolCollectionRepository.findAllIndySdcSchoolCollectionMonitoringBySdcCollectionId(collectionID);
+    log.info("getMonitorIndySdcSchoolCollectionResponse: DB query findAllIndySdcSchoolCollectionMonitoringBySdcCollectionId took {} ms, found {} schools for collectionID :: {}", System.currentTimeMillis() - monitorQueryStart, monitorSdcSchoolCollectionQueryResponses.size(), collectionID);
+
     List<MonitorIndySdcSchoolCollection> monitorSdcSchoolCollections = new ArrayList<>();
     var isCollectionComplete = collection.getCollectionStatusCode().equalsIgnoreCase(CollectionStatus.COMPLETED.getCode());
     HashMap<UUID, Integer> countMap;
 
     if(!isCollectionComplete) {
+      long dupeStart = System.currentTimeMillis();
       var duplicates = sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID);
       countMap = getSchoolDuplicatesCountMap(duplicates);
+      log.info("getMonitorIndySdcSchoolCollectionResponse: Provincial duplicates retrieval + count map took {} ms, found {} duplicates for collectionID :: {}", System.currentTimeMillis() - dupeStart, duplicates.size(), collectionID);
     } else {
       countMap = new HashMap<>();
     }
@@ -203,6 +218,7 @@ public class CollectionService {
     response.setSchoolsSubmitted(monitorSdcSchoolCollections.stream().filter(MonitorIndySdcSchoolCollection::isSubmittedToDistrict).count());
     response.setSchoolsWithData(monitorSdcSchoolCollections.stream().filter(coll -> coll.getUploadDate() != null).count());
     response.setTotalSchools(monitorSdcSchoolCollections.size());
+    log.info("getMonitorIndySdcSchoolCollectionResponse: Completed in {} ms for collectionID :: {}. Returning {} school collections", System.currentTimeMillis() - startTime, collectionID, monitorSdcSchoolCollections.size());
     return response;
   }
 

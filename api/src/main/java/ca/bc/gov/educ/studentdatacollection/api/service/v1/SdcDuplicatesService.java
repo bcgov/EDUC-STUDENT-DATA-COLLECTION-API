@@ -67,13 +67,28 @@ public class SdcDuplicatesService {
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesByCollectionID(UUID collectionID) {
+      long startTime = System.currentTimeMillis();
+      log.info("getAllProvincialDuplicatesByCollectionID: Starting province-wide duplicates retrieval for collectionID :: {}", collectionID);
       List<SdcSchoolCollectionStudentLightEntity> provinceDupes = findAllInProvinceDuplicateStudentsInCollection(collectionID);
-      return generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+      log.info("getAllProvincialDuplicatesByCollectionID: findAllInProvinceDuplicateStudentsInCollection took {} ms, found {} students for collectionID :: {}", System.currentTimeMillis() - startTime, provinceDupes.size(), collectionID);
+      long generateStart = System.currentTimeMillis();
+      var dupes = generateFinalDuplicatesSet(provinceDupes, DuplicateLevelCode.PROVINCIAL);
+      log.info("getAllProvincialDuplicatesByCollectionID: generateFinalDuplicatesSet took {} ms, produced {} duplicates for collectionID :: {}", System.currentTimeMillis() - generateStart, dupes.size(), collectionID);
+      log.info("getAllProvincialDuplicatesByCollectionID: Completed in {} ms for collectionID :: {}. Total duplicates found :: {}", System.currentTimeMillis() - startTime, collectionID, dupes.size());
+      return dupes;
   }
 
   public List<SdcSchoolCollectionStudentLightEntity> findAllInProvinceDuplicateStudentsInCollection(UUID collectionID) {
+      long startTime = System.currentTimeMillis();
       List<UUID> ids = sdcSchoolCollectionStudentRepository.findDuplicateLightIds(collectionID);
-      return ids.isEmpty() ? List.of() : sdcSchoolCollectionStudentLightRepository.findAllById(ids);
+      log.info("findAllInProvinceDuplicateStudentsInCollection: DB query findDuplicateLightIds took {} ms, found {} IDs for collectionID :: {}", System.currentTimeMillis() - startTime, ids.size(), collectionID);
+      if (ids.isEmpty()) {
+          return List.of();
+      }
+      long entityQueryStart = System.currentTimeMillis();
+      List<SdcSchoolCollectionStudentLightEntity> entities = sdcSchoolCollectionStudentLightRepository.findAllById(ids);
+      log.info("findAllInProvinceDuplicateStudentsInCollection: DB query findAllById took {} ms, fetched {} light entities for collectionID :: {}", System.currentTimeMillis() - entityQueryStart, entities.size(), collectionID);
+      return entities;
   }
 
   public List<SdcDuplicateEntity> getAllProvincialDuplicatesBySdcDistrictCollectionID(UUID sdcDistrictCollectionID) {
