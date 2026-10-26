@@ -70,7 +70,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
   private SdcSchoolCollectionStudentEnrolledProgramRepository enrolledProgramRepository;
 
   @AfterEach
-  public void after() {
+  void after() {
     this.sdcDistricCollectionRepository.deleteAll();
     this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();

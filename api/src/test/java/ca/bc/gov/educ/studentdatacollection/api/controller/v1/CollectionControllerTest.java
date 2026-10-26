@@ -100,7 +100,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
   protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @AfterEach
-  public void after() {
+  void after() {
     this.sagaEventRepository.deleteAll();
     this.sdcDuplicateRepository.deleteAll();
     this.collectionRepository.deleteAll();

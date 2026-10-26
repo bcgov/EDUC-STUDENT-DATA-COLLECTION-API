@@ -78,7 +78,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
   @AfterEach
-  public void after() {
+  void after() {
     this.sdcDuplicateRepository.deleteAll();
     this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();

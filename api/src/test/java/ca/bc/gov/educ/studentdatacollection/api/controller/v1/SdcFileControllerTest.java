@@ -79,7 +79,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @AfterEach
-  public void afterEach() {
+  void afterEach() {
     this.sdcDuplicateRepository.deleteAll();
     this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.schoolStudentRepository.deleteAll();
