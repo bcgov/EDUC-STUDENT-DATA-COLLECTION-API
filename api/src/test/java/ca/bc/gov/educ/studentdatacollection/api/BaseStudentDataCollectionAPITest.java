@@ -9,6 +9,7 @@ import ca.bc.gov.educ.studentdatacollection.api.mappers.v1.SdcSchoolCollectionSt
 import ca.bc.gov.educ.studentdatacollection.api.model.v1.*;
 import ca.bc.gov.educ.studentdatacollection.api.properties.ApplicationProperties;
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.*;
+import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.*;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.institute.v1.*;
@@ -33,6 +34,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
@@ -40,6 +45,9 @@ public abstract class BaseStudentDataCollectionAPITest {
 
   @Autowired
   protected StudentDataCollectionTestUtils studentDataCollectionTestUtils;
+
+  @Autowired
+  private RestUtils sharedRestUtilsMock;
 
   @Autowired
   EnrolledProgramCodeRepository enrolledProgramCodeRepository;
@@ -118,11 +126,25 @@ public abstract class BaseStudentDataCollectionAPITest {
     collectionTypeCodeRepository.save(createCollectionTypeCodeData());
     programDuplicateTypeCodeRepository.save(createProgramDuplicateTypeCodeData());
     sdcSchoolCollectionStatusCodeRepository.save(createSdcSchoolCollectionStatusCodeData());
+    stubRestUtilsDefaults();
   }
 
   @AfterEach
   public void resetState() {
     this.studentDataCollectionTestUtils.cleanDB();
+  }
+
+  /**
+   * Shared mock beans are reset after every test (see MockConfiguration), so defaults are re-applied here.
+   * Tests needing different behaviour override these stubs.
+   */
+  private void stubRestUtilsDefaults() {
+    when(sharedRestUtilsMock.getPenMatchResult(any(), any(), anyString())).thenReturn(getPenMatchResult());
+  }
+
+  protected void stubSchoolLookups(SchoolTombstone school) {
+    when(sharedRestUtilsMock.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    when(sharedRestUtilsMock.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
   }
 
   public CollectionEntity createMockCollectionEntity(){

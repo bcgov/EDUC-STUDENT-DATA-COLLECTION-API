@@ -20,11 +20,9 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -80,11 +78,6 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
 
   protected static final ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
-  @BeforeEach
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
-
   @AfterEach
   public void afterEach() {
     this.sdcDuplicateRepository.deleteAll();
@@ -99,7 +92,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFile_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -129,7 +122,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFile_givenVerFiletype_ShouldReturnStatusOk() throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
     SchoolTombstone schoolTombstone = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+    stubSchoolLookups(schoolTombstone);
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
       UUID.fromString(schoolTombstone.getSchoolId())
@@ -166,7 +159,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFile_givenStdFiletype_ShouldReturnStatusOk(String fileName) throws Exception {
     CollectionEntity collection = sdcRepository.save(createMockCollectionEntity());
     SchoolTombstone schoolTombstone = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(schoolTombstone));
+    stubSchoolLookups(schoolTombstone);
     SdcSchoolCollectionEntity sdcMockSchool = createMockSdcSchoolCollectionEntity(
       collection,
       UUID.fromString(schoolTombstone.getSchoolId())
@@ -297,8 +290,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUpload_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
-    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -363,8 +355,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUploadCompare_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
-    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -423,8 +414,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUploadCompareWithDups_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
-    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -515,7 +505,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileReUploadCompare_WithDeletedStudents_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -579,7 +569,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
   void testProcessSdcFileCheckProgress_givenValidPayload_ShouldReturnStatusOk() throws Exception {
     var collection = sdcRepository.save(createMockCollectionEntity());
     var school = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
     var sdcMockSchool = createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId()));
     sdcMockSchool.setUploadDate(null);
     sdcMockSchool.setUploadFileName(null);
@@ -803,8 +793,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     var districtCollection = sdcDistrictCollectionRepository.save(createMockSdcDistrictCollectionEntity(collection, districtID));
     school.setDistrictId(districtID.toString());
     sdcSchoolCollectionRepository.save(createMockSdcSchoolCollectionEntity(collection, UUID.fromString(school.getSchoolId())));
-    when(this.restUtils.getSchoolByMincode(anyString())).thenReturn(Optional.of(school));
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school));
+    stubSchoolLookups(school);
 
     final FileInputStream fis = new FileInputStream("src/test/resources/sample-1-student.txt");
     final String fileContents = Base64.getEncoder().encodeToString(IOUtils.toByteArray(fis));
@@ -832,7 +821,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     // Create first sdcSchoolCollection
     var collection1 = sdcRepository.save(createMockCollectionEntity());
     var school1 = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school1));
+    stubSchoolLookups(school1);
     var sdcMockSchool1 = createMockSdcSchoolCollectionEntity(collection1, UUID.fromString(school1.getSchoolId()));
     sdcMockSchool1.setUploadDate(null);
     sdcMockSchool1.setUploadFileName(null);
@@ -873,7 +862,7 @@ class SdcFileControllerTest extends BaseStudentDataCollectionAPITest {
     // Create second sdcSchoolCollection
     var collection2 = sdcRepository.save(createMockCollectionEntity());
     var school2 = this.createMockSchool();
-    when(this.restUtils.getSchoolBySchoolID(anyString())).thenReturn(Optional.of(school2));
+    stubSchoolLookups(school2);
     var sdcMockSchool2 = createMockSdcSchoolCollectionEntity(collection2, UUID.fromString(school2.getSchoolId()));
     sdcMockSchool2.setUploadDate(null);
     sdcMockSchool2.setUploadFileName(null);
