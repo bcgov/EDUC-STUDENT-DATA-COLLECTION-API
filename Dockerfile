@@ -7,7 +7,7 @@ RUN mvn package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
 FROM artifacts.developer.gov.bc.ca/docker-remote/amazoncorretto:21.0.12-alpine3.23
-RUN apk upgrade --no-cache && apk add --no-cache tzdata fontconfig font-dejavu
+RUN apk upgrade --no-cache && apk add --no-cache fontconfig font-dejavu
 RUN addgroup -S spring && adduser -S -G spring -s /bin/sh spring
 RUN mkdir -p /logs
 RUN chown -R spring:spring /logs
