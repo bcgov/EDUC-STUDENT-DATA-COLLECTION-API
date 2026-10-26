@@ -63,7 +63,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -122,7 +121,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "WRONG_SCOPE";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
-        .andDo(print())
         .andExpect(status().isForbidden());
   }
 
@@ -131,7 +129,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/monitorSdcDistrictCollections").with(mockAuthority)).andDo(print()).andExpect(status().isNotFound());
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/monitorSdcDistrictCollections").with(mockAuthority)).andExpect(status().isNotFound());
   }
 
   @Test
@@ -173,7 +171,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getDistrictByDistrictID(district2.getDistrictId())).thenReturn(Optional.of(district2));
 
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorSdcDistrictCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcDistrictCollectionId").value(mockDistrictCollectionEntity1.getSdcDistrictCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].districtTitle").value("011 - District1"))
@@ -226,7 +223,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getDistrictByDistrictID(district2.getDistrictId())).thenReturn(Optional.of(district2));
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/in-province-duplicates").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk());
   }
 
@@ -235,7 +231,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/monitorIndySdcSchoolCollections").with(mockAuthority)).andDo(print()).andExpect(status().isNotFound());
+    this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/monitorIndySdcSchoolCollections").with(mockAuthority)).andExpect(status().isNotFound());
   }
 
   @Test
@@ -288,7 +284,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getSchoolBySchoolID(school3.getSchoolId())).thenReturn(Optional.of(school3));
 
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
@@ -351,7 +346,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
 
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
@@ -383,7 +377,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
 
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/monitorIndySdcSchoolCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections").isArray())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections", hasSize(0)))
@@ -400,7 +393,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_COLLECTION";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
-        .andDo(print()).andExpect(status().isNotFound());
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -413,7 +406,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
             get(URL.BASE_URL_COLLECTION + "/" + newCollection.getCollectionID()).with(mockAuthority))
-        .andDo(print()).andExpect(status().isOk()).andExpect(
+        .andExpect(status().isOk()).andExpect(
             MockMvcResultMatchers.jsonPath("$.collectionID",
                 equalTo(newCollection.getCollectionID().toString())));
   }
@@ -428,7 +421,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/search/" + newCollection.getCreateUser()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
     });
@@ -440,7 +433,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/search/" + newCollection.getCreateUser()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
     });
@@ -459,7 +452,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION).contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON).content(asJsonString(collection)).with(mockAuthority))
-        .andDo(print()).andExpect(status().isCreated());
+        .andExpect(status().isCreated());
   }
 
   @Test
@@ -474,7 +467,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION).contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON).content(asJsonString(collection)).with(mockAuthority))
-        .andDo(print()).andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -489,7 +482,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
             delete(URL.BASE_URL_COLLECTION + "/" + newCollection.getCollectionID()).contentType(
                     MediaType.APPLICATION_JSON)
                 .with(mockAuthority))
-        .andDo(print()).andExpect(status().isNoContent());
+        .andExpect(status().isNoContent());
 
     List<CollectionEntity> collectionEntityList =  this.collectionRepository.findAll();
     assertThat(collectionEntityList).isEmpty();
@@ -513,7 +506,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/active").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(
+            .andExpect(status().isOk()).andExpect(
                     MockMvcResultMatchers.jsonPath("$.collectionID",
                             equalTo(currentCollection.getCollectionID().toString())));
   }
@@ -528,7 +521,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     this.collectionRepository.save(currentCollection);
 
     this.mockMvc.perform(post(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() + "/in-province-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -537,7 +530,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + UUID.randomUUID() +"/duplicates").with(mockAuthority)
             .param("matchedAssignedIDs", ""))
-            .andDo(print())
             .andExpect(status().isForbidden());
   }
 
@@ -547,7 +539,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_COLLECTION + "/" + null +"/duplicates").with(mockAuthority)
             .param("matchedAssignedIDs", ""))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -844,7 +836,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                     .content(asJsonString(sagaData))
                     .accept(MediaType.APPLICATION_JSON)
                     .with(mockAuthority))
-            .andDo(print()).andExpect(status().isAccepted());
+            .andExpect(status().isAccepted());
   }
 
   @Test
@@ -869,7 +861,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                     .content(asJsonString(sagaData))
                     .accept(MediaType.APPLICATION_JSON)
                     .with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -898,7 +890,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                     .content(asJsonString(sagaData))
                     .accept(MediaType.APPLICATION_JSON)
                     .with(mockAuthority))
-            .andDo(print()).andExpect(status().isConflict());
+            .andExpect(status().isConflict());
   }
 
   @Test
@@ -929,7 +921,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                     .param("searchCriteriaList", criteriaJSON)
                     .contentType(APPLICATION_JSON))
             .andReturn();
-    this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
   }
 
   @Test
@@ -961,7 +953,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/sdcSchoolCollections").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
+            .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
   }
 
   @Test
@@ -993,7 +985,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/sdcDistrictCollections").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
+            .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(1)));
   }
 
   @Test
@@ -1038,7 +1030,6 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
                     .with(mockAuthority)
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBodyJson))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolID").value(school.getSchoolId()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].gradeEnrolmentCount").value("2"));
@@ -1064,7 +1055,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/closure-saga-status").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk())
+            .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().string("true"));
   }
 
@@ -1077,7 +1068,7 @@ class CollectionControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_COLLECTION + "/" + collection.getCollectionID() + "/closure-saga-status").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk())
+            .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.content().string("false"));
   }
 

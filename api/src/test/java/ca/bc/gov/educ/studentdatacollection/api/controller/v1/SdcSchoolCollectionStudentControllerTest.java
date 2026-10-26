@@ -50,7 +50,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -120,10 +119,9 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED+"?pageSize=2")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -157,14 +155,12 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
         String snapshotDate = "$.content[?(@.assignedStudentId=='"
                 + student1.getAssignedStudentId().toString()
                 + "')].snapshotDate";
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content", hasSize(1)))
                 .andExpect(jsonPath(snapshotDate).value((LocalDate.of(LocalDate.now().getYear(), 9, 29)).toString()));
@@ -195,7 +191,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED+"?pageSize=2")
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
-            .andDo(print())
             .andDo(MvcResult::getAsyncResult)
             .andReturn();
 
@@ -203,7 +198,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             + mockStudentEntity.getAssignedStudentId().toString()
             + "')].yearsInEll";
         this.mockMvc.perform(asyncDispatch(result))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.content", hasSize(2)))
             .andExpect(jsonPath(yearsInEll).value("5"));
@@ -242,7 +236,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -282,7 +276,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -322,7 +316,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -346,7 +340,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
-            .andDo(print()).andExpect(status().isOk()).andExpect(
+            .andExpect(status().isOk()).andExpect(
                 jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
                     hasSize(1)));
 
@@ -381,7 +375,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID())
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
-                .andDo(print()).andExpect(status().isOk()).andExpect(
+                .andExpect(status().isOk()).andExpect(
                         jsonPath("$.sdcSchoolCollectionStudentValidationIssues",
                                 hasSize(1))).andExpect(
                         jsonPath("$.sdcSchoolCollectionStudentEnrolledPrograms",
@@ -442,7 +436,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -498,7 +492,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -554,7 +548,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -614,7 +608,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(3)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(3)));
     }
 
     @Test
@@ -623,7 +617,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + UUID.randomUUID())
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
-            .andDo(print()).andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
     }
 
     @Test
@@ -632,7 +626,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
             .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT + "/" + URL.ERROR_WARNING_COUNT + "/" + UUID.randomUUID())
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
-            .andDo(print())
             .andExpect(status().isOk());
     }
 
@@ -685,7 +678,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         + school.getSdcSchoolCollectionID())
                 .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                 .contentType(APPLICATION_JSON))
-            .andDo(print())
                 .andExpect(jsonPath("$.[0]severityCode", equalTo("ERROR")))
                 .andExpect(jsonPath("$.[0]total", equalTo(3)))
                 .andExpect(jsonPath("$.[1]severityCode", equalTo("FUNDING_WARNING")))
@@ -723,7 +715,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
+                .andExpect(status().isBadRequest()).andReturn();
 
         assertThat(apiResponse
                 .getResponse()
@@ -765,7 +757,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isBadRequest()).andReturn();
+                .andExpect(status().isBadRequest()).andReturn();
 
         assertThat(apiResponse
                 .getResponse()
@@ -816,7 +808,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -850,7 +842,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk());
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -875,7 +867,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isBadRequest());
+                .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -907,7 +899,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
@@ -945,7 +937,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
@@ -985,7 +977,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                     .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.dob", equalTo(dob)))
             .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(2)))
@@ -1034,7 +1025,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(savedStudent)))
                                 .with(mockAuthority))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.dob", equalTo(dob)))
                 .andExpect(jsonPath("$.updateDate", containsString(origUpdateDate.toString().substring(0,20))))
@@ -1076,7 +1066,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                     .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.sdcSchoolCollectionStudentValidationIssues", hasSize(1)))
             .andExpect(jsonPath("$.sdcSchoolCollectionStudentStatusCode", equalTo(SdcSchoolStudentStatus.INFO_WARNING.toString())));
@@ -1136,7 +1125,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -1184,7 +1173,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -1213,7 +1202,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(payload)
                                 .with(mockAuthority))
-                .andDo(print())
                 .andExpect(status().isOk());
 
         var deletedSdcSchoolCollectionStudent = sdcSchoolCollectionStudentRepository.findById(savedSdcSchoolCollectionStudent.getSdcSchoolCollectionStudentID());
@@ -1269,7 +1257,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "enrollment")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("2")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].comparisonValue", equalTo("4")))
@@ -1323,7 +1310,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "enrollment")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountResultsTable.headers", not(hasItemInArray("KH"))));
 
     }
@@ -1384,7 +1370,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Core French")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[1].title", equalTo("Early French Immersion")))
@@ -1448,7 +1433,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountResultsTable.headers", not(hasItemInArray("KH"))));
 
     }
@@ -1509,7 +1493,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Programme Francophone")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")));
 
@@ -1575,7 +1558,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "career")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Career Preparation")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("2")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("4")))
@@ -1677,7 +1659,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .param("type", "ell")
                 .param("compare", "true")
                 .contentType(APPLICATION_JSON))
-            .andDo(print())
             .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
             .andExpect(jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported")))
             .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
@@ -1746,7 +1727,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -1781,7 +1762,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -1817,7 +1798,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -1852,7 +1833,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(0)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test
@@ -1888,7 +1869,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -1924,7 +1905,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -1961,7 +1942,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -1998,7 +1979,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -2038,7 +2019,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(0)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(0)));
     }
 
     @Test
@@ -2075,7 +2056,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
     }
 
     @Test
@@ -2139,7 +2120,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "indigenous")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -2182,7 +2162,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .contentType(APPLICATION_JSON)
                 .content(payload)
                 .with(mockAuthority))
-            .andDo(print())
             .andExpect(jsonPath("$.[0]createUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
             .andExpect(jsonPath("$.[0]updateUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
             .andExpect(jsonPath("$.[0]studentID", equalTo(studentId.toString())))
@@ -2221,7 +2200,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .contentType(APPLICATION_JSON)
                 .content(payload)
                 .with(mockAuthority))
-            .andDo(print())
             .andExpect(jsonPath("$.[0]createUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
             .andExpect(jsonPath("$.[0]updateUser", equalTo(ApplicationProperties.STUDENT_DATA_COLLECTION_API)))
             .andExpect(jsonPath("$.[0]studentID", equalTo(studentId.toString())))
@@ -2282,7 +2260,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "special-ed")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -2373,7 +2350,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "special-ed-cat-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
@@ -2458,7 +2434,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(3)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(3)));
     }
 
     @Test
@@ -2530,7 +2506,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -2574,7 +2550,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk())
+                .andExpect(status().isOk())
                 .andExpect(jsonPath("indigenousSupportProgramNonEligReasonCode", equalTo("INDYERR")));
     }
 
@@ -2607,7 +2583,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print())
                 .andExpect(status().isOk());
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
@@ -2676,7 +2651,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "enrollment")
                         .param("compare", "false")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("6")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Adult'].currentValue", equalTo("2")))
@@ -2743,7 +2717,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "special-ed")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -2842,7 +2815,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("type", "INCLUSIVE_EDUCATION_VARIANCE")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.headcountResultsTable.headers", hasSize(49)))
                 .andExpect(jsonPath("$.headcountResultsTable.rows", hasSize(greaterThan(0))))
@@ -2919,7 +2891,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "special-ed-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("A - Physically Dependent")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("1")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].comparisonValue", equalTo("0")))
@@ -2991,7 +2962,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "grade-enrollment")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Student Headcount")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].currentValue", equalTo("6")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['All Students'].comparisonValue", equalTo("0")))
@@ -3075,7 +3045,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "career")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Career Preparation")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("6")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -3179,7 +3148,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "french")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Core French")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].comparisonValue", equalTo("0")))
@@ -3295,7 +3263,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "french-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[2].title", equalTo("Late French Immersion")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].currentValue", equalTo("2")))
                 .andExpect(jsonPath("$.headcountHeaders[2].columns.['Eligible'].comparisonValue", equalTo("0")))
@@ -3388,7 +3355,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "career-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Career Preparation")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("6")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -3467,7 +3433,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "indigenous")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Reported'].comparisonValue", equalTo("0")))
@@ -3556,7 +3521,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "band-codes")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("4")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].currentValue", contains("2.72")))
@@ -3633,7 +3597,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "band-codes")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 //this is correct two of the students are in deleted - total of 6 is correct
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("2")))
@@ -3732,7 +3695,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "band-codes")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0500 - KWANLIN DUN", "All Bands & Students")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['Headcount'].currentValue", contains("1")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0500 - KWANLIN DUN')].['FTE'].currentValue", contains("0.79")))
@@ -3849,7 +3811,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "ell")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("English Language Learners")))
                 .andExpect(jsonPath("$.headcountHeaders[0].orderedColumnTitles", containsInRelativeOrder("Eligible", "Reported")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("5")))
@@ -3928,7 +3889,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "indigenous-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0000001 - School1", "0000002 - School2", "All Schools")))
@@ -4014,7 +3974,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "band-codes-per-school")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Indigenous Language and Culture")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].currentValue", equalTo("0")))
                 .andExpect(jsonPath("$.headcountHeaders[0].columns.['Eligible'].comparisonValue", equalTo("0")))
@@ -4127,7 +4086,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "band-codes-per-school")
                         .param("compare", "false")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountResultsTable.rows[*].['title'].currentValue", containsInAnyOrder("0000001 - School1", "0000002 - School2", "0000003 - School3", "0000004 - School4", "All Bands & Students")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['FTE'].currentValue", contains("5.18")))
                 .andExpect(jsonPath("$.headcountResultsTable.rows[?(@.['title'].currentValue=='0000001 - School1')].['Headcount'].currentValue", contains("6")))
@@ -4223,7 +4181,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "zero-fte-summary")
                         .param("compare", "false")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Non-Funded Students")));
 
     }
@@ -4391,7 +4348,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("type", "zero-fte-summary")
                         .param("compare", "true")
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(jsonPath("$.headcountHeaders[0].title", equalTo("Non-Funded Students")));
 
     }
@@ -4428,7 +4384,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
                 .andReturn();
-        this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
+        this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(2)));
     }
 
     @Test
@@ -4462,7 +4418,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andExpect(status().isOk());
     }
 
@@ -4499,7 +4454,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
@@ -4541,7 +4496,7 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                                 .contentType(APPLICATION_JSON)
                                 .content(asJsonString(SdcSchoolCollectionStudentMapper.mapper.toSdcSchoolStudent(entity)))
                                 .with(mockAuthority))
-                .andDo(print()).andExpect(status().isOk());
+                .andExpect(status().isOk());
 
         val curStudentEntity = sdcSchoolCollectionStudentRepository.findById(entity.getSdcSchoolCollectionStudentID());
         assertThat(curStudentEntity).isPresent();
@@ -4585,7 +4540,6 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                     .contentType(APPLICATION_JSON)
                     .content(asJsonString(sldMove))
                     .with(mockAuthority))
-                    .andDo(print())
                     .andExpect(status().isOk());
 
         var savedEntity = sdcSchoolCollectionStudentRepository.findAll();
@@ -4622,12 +4576,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED_STUDENT_HISTORY+"?pageSize=10")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
 
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
     }
@@ -4670,12 +4622,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
 
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
     }
@@ -4704,12 +4654,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                 .perform(get(URL.BASE_URL_SCHOOL_COLLECTION_STUDENT+URL.PAGINATED_STUDENT_HISTORY+"?pageNumber=0&pageSize=5")
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
 
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray())
                 .andExpect(jsonPath("$.pageable.pageSize").value(5))
@@ -4747,12 +4695,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("sort", sortJSON)
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
 
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
     }
@@ -4804,12 +4750,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
 
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
     }
@@ -4864,12 +4808,10 @@ class SdcSchoolCollectionStudentControllerTest extends BaseStudentDataCollection
                         .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_SCHOOL_COLLECTION_STUDENT")))
                         .param("searchCriteriaList", criteriaJSON)
                         .contentType(APPLICATION_JSON))
-                .andDo(print())
                 .andDo(MvcResult::getAsyncResult)
                 .andReturn();
 
         this.mockMvc.perform(asyncDispatch(result))
-                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").isArray());
     }

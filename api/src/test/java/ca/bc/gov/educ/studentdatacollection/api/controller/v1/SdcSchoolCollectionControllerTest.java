@@ -45,7 +45,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -101,7 +100,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcMockSchool.getSdcSchoolCollectionID()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -141,7 +140,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DUPLICATE + "/" + savedDupe.getSdcDuplicateID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(
+            .andExpect(status().isOk()).andExpect(
                     MockMvcResultMatchers.jsonPath("$.sdcDuplicateID",
                             equalTo(savedDupe.getSdcDuplicateID().toString())));
   }
@@ -153,7 +152,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_COLLECTION + "/duplicate/" + UUID.randomUUID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -229,7 +228,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isNotFound());
+      .andExpect(status().isNotFound());
   }
 
   @Test
@@ -249,7 +248,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk()).andExpect(
+      .andExpect(status().isOk()).andExpect(
           MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionID",
             equalTo(sdcMockSchool.getSdcSchoolCollectionID().toString())));
   }
@@ -280,7 +279,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?schoolID=" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @Test
@@ -312,7 +311,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?sdcDistrictCollectionID=" + sdcMockDistrictCollection.getSdcDistrictCollectionID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+            .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
 
   @Test
@@ -322,7 +321,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_COLLECTION + "/searchAll?userID=12345").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -354,7 +353,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk()).andExpect(
+      .andExpect(status().isOk()).andExpect(
           MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionID",
             equalTo(sdcMockSchool.getSdcSchoolCollectionID().toString())));
   }
@@ -378,7 +377,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isNotFound());
+      .andExpect(status().isNotFound());
   }
 
   @Test
@@ -398,7 +397,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk()).andExpect(
+      .andExpect(status().isOk()).andExpect(
           MockMvcResultMatchers.jsonPath("$.sdcSchoolCollectionStatusCode",
             equalTo("NEW")));
   }
@@ -420,7 +419,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk()).andExpect(
+      .andExpect(status().isOk()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionTypeCode",
             equalTo("SEPTEMBER")));
   }
@@ -442,7 +441,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
 
     this.mockMvc.perform(
         get(URL.BASE_URL_SCHOOL_COLLECTION + "/search/" + schoolTombstone.getSchoolId()).with(mockAuthority))
-      .andDo(print()).andExpect(status().isForbidden());
+      .andExpect(status().isForbidden());
   }
 
   @Test
@@ -463,7 +462,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
         .with(mockAuthority))
-      .andDo(print()).andExpect(status().isCreated()).andExpect(
+      .andExpect(status().isCreated()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
   }
 
@@ -486,7 +485,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
         .with(mockAuthority))
-      .andDo(print()).andExpect(status().isCreated()).andExpect(
+      .andExpect(status().isCreated()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
   }
 
@@ -513,7 +512,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
         .with(mockAuthority))
-      .andDo(print()).andExpect(status().isCreated());
+      .andExpect(status().isCreated());
 
     List<SdcSchoolCollectionStudentEnrolledProgramEntity> codes =
       this.sdcSchoolCollectionStudentEnrolledProgramRepository.findAll();
@@ -546,7 +545,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
         .with(mockAuthority))
-      .andDo(print()).andExpect(status().isCreated()).andExpect(
+      .andExpect(status().isCreated()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
   }
 
@@ -568,7 +567,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
         .with(mockAuthority))
-      .andDo(print()).andExpect(status().isNotFound());
+      .andExpect(status().isNotFound());
   }
 
   @Test
@@ -589,7 +588,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcSchoolCollectionMapper.mapper.toSdcSchoolWithStudents(sdcMockSchool)))
         .with(mockAuthority))
-      .andDo(print()).andExpect(status().isCreated()).andExpect(
+      .andExpect(status().isCreated()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
 
     var sdcSchoolCollection = sdcSchoolCollectionRepository.findActiveCollectionBySchoolId(sdcMockSchool.getSchoolID());
@@ -602,7 +601,7 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
         delete(URL.BASE_URL_SCHOOL_COLLECTION + "/" + sdcSchoolCollection.get().getSdcSchoolCollectionID()).contentType(MediaType.APPLICATION_JSON)
         .accept(MediaType.APPLICATION_JSON)
         .with(mockAuthority1))
-      .andDo(print()).andExpect(status().isNoContent());
+      .andExpect(status().isNoContent());
 
     var sdcSchoolCollectionDelete = sdcSchoolCollectionRepository.findById(sdcSchoolCollection.get().getSdcSchoolCollectionID());
     assertThat(sdcSchoolCollectionDelete).isEmpty();
@@ -888,6 +887,6 @@ class SdcSchoolCollectionControllerTest extends BaseStudentDataCollectionAPITest
                     .param("searchCriteriaList", criteriaJSON)
                     .contentType(APPLICATION_JSON))
             .andReturn();
-    this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
   }
 }

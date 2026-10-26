@@ -26,7 +26,6 @@ import static org.springframework.security.test.web.servlet.request.SecurityMock
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @Slf4j
@@ -49,7 +48,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.ENROLLED_PROGRAM_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.ENROLLED_PROGRAM_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].enrolledProgramCode").value("05"));
   }
 
@@ -58,7 +57,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.CAREER_PROGRAM_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.CAREER_PROGRAM_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].careerProgramCode").value("XA"));
   }
 
@@ -67,7 +66,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.HOME_LANGUAGE_SPOKEN_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.HOME_LANGUAGE_SPOKEN_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].homeLanguageSpokenCode").value("001"));
   }
 
@@ -76,7 +75,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.BAND_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.BAND_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[2].bandCode").value("0500"));
   }
 
@@ -85,7 +84,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.FUNDING_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.FUNDING_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolFundingCode").value("14"));
   }
   @Test
@@ -93,7 +92,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.GRADE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.GRADE_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].enrolledGradeCode").value("KH"));
   }
 
@@ -102,7 +101,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.GENDER_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.GENDER_CODES).with(mockAuthority)).andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].genderCode").value("M"));
   }
 
@@ -111,7 +110,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.VALIDATION_ISSUE_TYPE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.VALIDATION_ISSUE_TYPE_CODES).with(mockAuthority)).andExpect(status().isOk())
         .andExpect(MockMvcResultMatchers.jsonPath("$[0].validationIssueTypeCode").value("GENDERINVALID"))
         .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
@@ -121,7 +120,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.FUNDING_GROUP_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.FUNDING_GROUP_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].schoolFundingGroupCode").value("GROUP1"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
@@ -131,7 +130,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.ZERO_FTE_REASON_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.ZERO_FTE_REASON_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fteZeroReasonCode").value("TOOYOUNG"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
@@ -141,7 +140,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.COLLECTION_TYPE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.COLLECTION_TYPE_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].collectionTypeCode").value("SEPTEMBER"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
@@ -151,7 +150,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.PROGRAM_ELIGIBILITY_ISSUE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.PROGRAM_ELIGIBILITY_ISSUE_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].programEligibilityIssueTypeCode").value("HOMESCHOOL"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
@@ -161,7 +160,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.PROGRAM_DUPLICATE_TYPE_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.PROGRAM_DUPLICATE_TYPE_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].programDuplicateTypeCode").value("SPECIAL_ED"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }
@@ -171,7 +170,7 @@ class CodeTableControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_COLLECTION_CODES";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL + URL.SDC_SCHOOL_COLLECTION_STATUS_CODES).with(mockAuthority)).andDo(print()).andExpect(status().isOk())
+    this.mockMvc.perform(get(URL.BASE_URL + URL.SDC_SCHOOL_COLLECTION_STATUS_CODES).with(mockAuthority)).andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].sdcSchoolCollectionStatusCode").value("NEW"))
             .andExpect(MockMvcResultMatchers.jsonPath("$").isArray());
   }

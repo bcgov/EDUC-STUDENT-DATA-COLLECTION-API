@@ -46,7 +46,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 
@@ -82,7 +81,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_MINISTRY_REPORTS";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + UUID.randomUUID() + "/testing").with(mockAuthority))
-        .andDo(print()).andExpect(status().isBadRequest());
+        .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -121,7 +120,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/school-enrollment-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -166,7 +165,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/school-enrollment-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -220,7 +219,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/school-address-report").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -274,7 +273,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/school-address-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -321,7 +320,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -368,7 +367,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -414,7 +413,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -455,7 +454,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-school-enrollment-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -505,7 +504,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-inclusive-ed-enrollment-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -576,7 +575,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-inclusive-ed-funding-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -622,7 +621,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/posted-duplicates/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -668,7 +667,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-inclusive-ed-enrollment-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -725,7 +724,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection2.getCollectionID() + "/inclusive-education-variances-all/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -783,7 +782,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection2.getCollectionID() + "/indy-inclusive-ed-funding-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -828,7 +827,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-school-enrollment-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -875,7 +874,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-school-enrollment-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -919,7 +918,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-enrollment-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -963,7 +962,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-enrollment-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -1007,7 +1006,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-enrollment-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1053,7 +1052,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-languages-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1104,7 +1103,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/offshore-languages-headcounts").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -1148,7 +1147,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/enrolled-fte-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1192,7 +1191,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/isfs-prelim-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1238,7 +1237,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-funding-report-all/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1284,7 +1283,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/indy-funding-report-funded/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1332,7 +1331,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/online-indy-funding-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1382,7 +1381,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/non-graduated-adult-indy-funding-report/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1430,7 +1429,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/refugee-enrolment-fte-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1476,7 +1475,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/refugee-enrolment-fte-headcounts/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
 
   }
 
@@ -1518,7 +1517,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -1566,7 +1565,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<SimpleHeadcountResultsTable>() {
     });
@@ -1614,7 +1613,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/fsa-registration-report").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -1646,7 +1645,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/ell-students-fall-csv/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1695,7 +1694,7 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + febCollection.getCollectionID() + "/ell-students-fall-csv/download").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val response = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<DownloadableReportResponse>() {
     });
@@ -1730,7 +1729,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/allReports/" + districtCollectionID + "/streamChunked")
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(header().string("Content-Type", "application/x-ndjson;charset=UTF-8"));
 
@@ -1750,7 +1748,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/allReports/" + invalidDistrictCollectionID + "/streamChunked")
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isNotFound());
   }
 
@@ -1760,7 +1757,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/allReports/" + districtCollectionID + "/streamChunked"))
-            .andDo(print())
             .andExpect(status().isUnauthorized());
   }
 
@@ -1772,7 +1768,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + UUID.randomUUID() + "/invalid-type/stream")
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isBadRequest());
   }
 
@@ -1780,7 +1775,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
   void testStreamMinistryReport_WithoutAuthorization_ShouldReturnUnauthorized() throws Exception {
     this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + UUID.randomUUID() + "/ell-students-fall-csv/stream"))
-            .andDo(print())
             .andExpect(status().isUnauthorized());
   }
 
@@ -1814,7 +1808,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + collection.getCollectionID() + "/ell-students-fall-csv/stream")
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk());
 
     String response = resultActions.andReturn().getResponse().getContentAsString();
@@ -1855,7 +1848,6 @@ class MinistryReportsControllerTest extends BaseStudentDataCollectionAPITest {
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_MINISTRY_HEADCOUNTS + "/" + febCollection.getCollectionID() + "/ell-students-fall-csv/stream")
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk());
 
     String response = resultActions.andReturn().getResponse().getContentAsString();
