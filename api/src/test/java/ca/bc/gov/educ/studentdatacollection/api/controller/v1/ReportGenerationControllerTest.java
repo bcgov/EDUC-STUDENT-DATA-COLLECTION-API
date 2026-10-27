@@ -35,7 +35,6 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
@@ -71,7 +70,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
   private SdcSchoolCollectionStudentEnrolledProgramRepository enrolledProgramRepository;
 
   @AfterEach
-  public void after() {
+  void after() {
     this.sdcDistricCollectionRepository.deleteAll();
     this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();
@@ -131,7 +130,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
         get(URL.BASE_URL_REPORT_GENERATION + "/sdcSchoolCollection/" + sdcMockSchool.getSdcSchoolCollectionID() + "/" + reportTypeCode).with(mockAuthority))
-      .andDo(print()).andExpect(status().isOk());
+      .andExpect(status().isOk());
   }
 
   @ParameterizedTest
@@ -182,7 +181,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + reportTypeCode).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -219,7 +218,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcSchoolCollection/" + sdcMockSchool.getSdcSchoolCollectionID() + "/FRENCH_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -239,7 +238,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcSchoolCollection/" + sdcMockSchool.getSdcSchoolCollectionID() + "/ABC").with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -264,7 +263,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/GRADE_ENROLLMENT_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -288,7 +287,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + sdcMockSchool.getSdcSchoolCollectionID() + "/GRADE_ENROLLMENT_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -323,7 +322,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcSchoolCollection/" + sdcMockSchool.getSdcSchoolCollectionID() + "/" + "ALL_STUDENT_SCHOOL_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -358,7 +357,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcSchoolCollection/" + sdcMockSchool.getSdcSchoolCollectionID() + "/" + "ALL_STUDENT_ERRORS_WARNS_SCHOOL_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -395,7 +394,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "ALL_STUDENT_DIS_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -432,7 +431,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "ALL_STUDENT_ERRORS_WARNS_DIS_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -442,7 +441,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + "0000" + "/" + "ALL_STUDENT_SCHOOL_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().is4xxClientError());
+            .andExpect(status().is4xxClientError());
   }
 
   @Test
@@ -452,7 +451,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/" + "0000" + "/" + "ALL_STUDENT_DIS_CSV").with(mockAuthority))
-            .andDo(print()).andExpect(status().is4xxClientError());
+            .andExpect(status().is4xxClientError());
   }
 
   @Test
@@ -519,7 +518,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_FRENCH_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -586,7 +585,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_FRENCH_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -606,7 +605,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_FRENCH_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -659,7 +658,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_GRADE_ENROLLMENT_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -720,7 +719,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -740,7 +739,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_GRADE_ENROLLMENT_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -797,7 +796,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_CAREER_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -854,7 +853,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_CAREER_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -874,7 +873,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_CAREER_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -931,7 +930,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -988,7 +987,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_HEADCOUNT_CATEGORY_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1044,7 +1043,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1064,7 +1063,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_SPECIAL_EDUCATION_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1120,7 +1119,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_INDIGENOUS_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1176,7 +1175,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_INDIGENOUS_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1236,7 +1235,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_BAND_RESIDENCE_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1256,7 +1255,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_BAND_RESIDENCE_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1316,7 +1315,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_BAND_RESIDENCE_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1336,7 +1335,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_BAND_RESIDENCE_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1356,7 +1355,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_INDIGENOUS_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1413,7 +1412,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ELL_HEADCOUNT").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1470,7 +1469,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ELL_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1490,7 +1489,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ELL_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
 
@@ -1559,7 +1558,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_REFUGEE_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1579,7 +1578,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_REFUGEE_HEADCOUNT_PER_SCHOOL").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1676,7 +1675,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/differences?sdcSchoolCollectionID=" + sdcMockSchool.getSdcSchoolCollectionID()).
                             with(mockAuthority).param("searchCriteriaList", criteriaJSON))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
 
     PaginatedResponse<StudentDifference> paginatedResponse = objectMapper.readValue(
@@ -1756,7 +1755,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ZERO_FTE_SUMMARY").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1776,7 +1775,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_ZERO_FTE_SUMMARY").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1846,7 +1845,7 @@ class ReportGenerationControllerTest extends BaseStudentDataCollectionAPITest {
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_REPORT_GENERATION + "/sdcDistrictCollection/" + sdcMockDistrict.getSdcDistrictCollectionID() + "/" + "DIS_PRP_OR_YOUTH_SUMMARY").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   private void setEnrolledProgramCode(SdcSchoolCollectionStudentEntity studentEntity, String enrolledProgram) {

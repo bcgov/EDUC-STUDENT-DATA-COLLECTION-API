@@ -8,9 +8,7 @@ import ca.bc.gov.educ.studentdatacollection.api.model.v1.SdcSchoolCollectionStud
 import ca.bc.gov.educ.studentdatacollection.api.rest.RestUtils;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.grad.v1.GradStatusResult;
 import ca.bc.gov.educ.studentdatacollection.api.struct.external.penmatch.v1.PenMatchResult;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDate;
@@ -30,11 +28,6 @@ class ValidationRulesServiceTest extends BaseStudentDataCollectionAPITest {
 
     @Autowired
     private RestUtils restUtils;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testGetPenMatchResultMultiPEN() {

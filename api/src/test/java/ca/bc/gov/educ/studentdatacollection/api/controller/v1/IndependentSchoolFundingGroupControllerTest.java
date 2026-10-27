@@ -10,9 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.val;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -27,7 +25,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(classes = {StudentDataCollectionApiApplication.class})
@@ -44,11 +41,6 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
   @Autowired
   IndependentSchoolFundingGroupSnapshotRepository independentSchoolFundingGroupSnapshotRepository;
 
-  @BeforeEach
-  public void setUp() {
-    MockitoAnnotations.openMocks(this);
-  }
-
   protected final static ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
 
   @Test
@@ -56,7 +48,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SCHOOL_FUNDING_GROUP_SNAPSHOT";
     final OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
     this.mockMvc.perform(get(URL.BASE_URL_SCHOOL_FUNDING + "/" + UUID.randomUUID()).with(mockAuthority))
-        .andDo(print()).andExpect(status().isNotFound());
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -68,7 +60,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
 
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_FUNDING + "/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
     });
@@ -81,7 +73,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_FUNDING + "/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
     });
@@ -98,7 +90,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
 
     var resultActions = this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_FUNDING + "/" + independentSchoolFundingGroupEntity.getSchoolID() + "/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary = objectMapper.readValue(resultActions.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
     });
@@ -111,7 +103,7 @@ class IndependentSchoolFundingGroupControllerTest extends BaseStudentDataCollect
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_SCHOOL_FUNDING + "/all/" + independentSchoolFundingGroupEntity.getCollectionID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val summary1 = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List>() {
     });

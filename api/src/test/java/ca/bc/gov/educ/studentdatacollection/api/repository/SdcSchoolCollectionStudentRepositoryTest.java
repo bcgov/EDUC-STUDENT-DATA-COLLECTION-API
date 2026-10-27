@@ -12,9 +12,7 @@ import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcSchoolCollectio
 import ca.bc.gov.educ.studentdatacollection.api.repository.v1.SdcStudentEllRepository;
 import ca.bc.gov.educ.studentdatacollection.api.struct.v1.headcounts.EllStudentResult;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,11 +43,6 @@ class SdcSchoolCollectionStudentRepositoryTest extends BaseStudentDataCollection
     @Autowired
     private SdcStudentEllRepository sdcStudentEllRepository;
     private UUID schoolCollectionId;
-
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
 
     @Test
     void testGetCareerHeadcountsBySchoolId_givenMultipleEnrolledCodesAndInvalidStudents_shouldIncludeCorrectAndDistinctStudentInHeadcounts() {

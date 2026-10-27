@@ -32,9 +32,10 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
-      - uses: actions/setup-java@v1
+      - uses: actions/setup-java@v6
         with:
-          java-version: 18
+          distribution: corretto
+          java-version: 21
       - uses: actions/cache@v3
         with:
           path: ~/.m2/repository
@@ -43,11 +44,6 @@ jobs:
             ${{ runner.os }}-maven-5Jun-
       - name: Run unit tests
         run: mvn -f pom.xml clean package
-      - name: setup java 21 for sonar analysis
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: 21
       - name: Cache SonarCloud packages
         uses: actions/cache@v3
         with:

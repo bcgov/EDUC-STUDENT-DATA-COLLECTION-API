@@ -42,7 +42,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -77,7 +76,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
   RestUtils restUtils;
 
   @AfterEach
-  public void after() {
+  void after() {
     this.sdcDuplicateRepository.deleteAll();
     this.collectionRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();
@@ -105,7 +104,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/search/" + district.getDistrictId()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
   }
   @Test
   void testGetActiveDistrictCollectionByDistrictId_withSameDistrictInPastCollection_ShouldReturnOneDistrictCollection() throws Exception {
@@ -132,7 +131,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/search/" + district.getDistrictId()).with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.sdcDistrictCollectionID", equalTo(sdcMockDistrict.getSdcDistrictCollectionID().toString())));
   }
@@ -152,7 +150,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/search/" + district.getDistrictId()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isForbidden());
+            .andExpect(status().isForbidden());
   }
 
   @Test
@@ -192,7 +190,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -242,7 +240,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -289,7 +287,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -343,7 +341,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -397,7 +395,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -450,7 +448,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -607,7 +605,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     var resultActions1 = this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcDistrictCollectionID + "/in-district-duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     val sdcDuplicates = objectMapper.readValue(resultActions1.andReturn().getResponse().getContentAsByteArray(), new TypeReference<List<SdcDuplicate>>() {
     });
@@ -630,7 +628,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrict.getSdcDistrictCollectionID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk())
+            .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.sdcDistrictCollectionID", equalTo(sdcMockDistrict.getSdcDistrictCollectionID().toString())));
   }
   @Test
@@ -648,7 +646,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + UUID.randomUUID()).with(mockAuthority))
-            .andDo(print()).andExpect(status().isNotFound());
+            .andExpect(status().isNotFound());
   }
 
   @Test
@@ -667,7 +665,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
         .with(mockAuthority))
-        .andDo(print()).andExpect(status().isCreated()).andExpect(
+        .andExpect(status().isCreated()).andExpect(
           MockMvcResultMatchers.jsonPath("$.collectionID").value(newCollectionEntity.getCollectionID().toString()));
   }
 
@@ -687,7 +685,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
         .with(mockAuthority))
-        .andDo(print()).andExpect(status().isNotFound());
+        .andExpect(status().isNotFound());
   }
 
   @Test
@@ -707,7 +705,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
         .accept(MediaType.APPLICATION_JSON)
         .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
         .with(mockAuthority))
-        .andDo(print())
         .andExpect(status().isBadRequest())
         .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("sdcDistrictCollectionID should be null for post operation."));
   }
@@ -729,7 +726,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                             .accept(MediaType.APPLICATION_JSON)
                             .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isBadRequest())
             .andExpect(MockMvcResultMatchers.jsonPath("$.subErrors[0].message").value("Invalid SDC district collection status code."));
   }
@@ -749,7 +745,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
       .accept(MediaType.APPLICATION_JSON)
       .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
       .with(mockAuthority))
-      .andDo(print())
       .andExpect(status().isNotFound());
 
     var deletedEntity = sdcDistrictCollectionRepository.findById(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
@@ -771,7 +766,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                             .accept(MediaType.APPLICATION_JSON)
                             .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructure(sdcMockDistrict)))
                             .with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isNoContent());
 
     var deletedEntity = sdcDistrictCollectionRepository.findById(mockDistrictCollectionEntity.getSdcDistrictCollectionID());
@@ -890,7 +884,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockSdcDistrictCollectionEntity.getSdcDistrictCollectionID().toString() + "/fileProgress")
             .with(jwt().jwt(jwt -> jwt.claim("scope", "READ_SDC_DISTRICT_COLLECTION")))
             .header("correlationID", UUID.randomUUID().toString()))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].fileName").value(schoolCollectionEntity2.getUploadFileName()))
             .andExpect(MockMvcResultMatchers.jsonPath("$[0].percentageStudentsProcessed").value("100"))
@@ -1017,7 +1010,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
     this.mockMvc.perform(
                     get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + sdcMockDistrictCollection.getSdcDistrictCollectionID() + "/sdcSchoolCollections").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
+            .andExpect(status().isOk()).andExpect(MockMvcResultMatchers.jsonPath("$", hasSize(2)));
   }
 
   @Test
@@ -1049,7 +1042,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                             .accept(MediaType.APPLICATION_JSON)
                             .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructureWithSubmissionSignatures(savedDistrictColl)))
                             .with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
   }
 
   @Test
@@ -1081,7 +1074,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                             .accept(MediaType.APPLICATION_JSON)
                             .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructureWithSubmissionSignatures(savedDistrictColl)))
                             .with(mockAuthority))
-            .andDo(print()).andExpect(status().isBadRequest());
+            .andExpect(status().isBadRequest());
   }
 
   @Test
@@ -1129,7 +1122,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                             .accept(MediaType.APPLICATION_JSON)
                             .content(asJsonString(SdcDistrictCollectionMapper.mapper.toStructureWithSubmissionSignatures(savedDistrictColl)))
                             .with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk());
+            .andExpect(status().isOk());
 
     var updatedDistrictColl = sdcDistrictCollectionRepository.findById(sdcMockDistrictCollection.getSdcDistrictCollectionID());
     assertThat(updatedDistrictColl).isPresent();
@@ -1166,7 +1159,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
                     .param("searchCriteriaList", criteriaJSON)
                     .contentType(APPLICATION_JSON))
             .andReturn();
-    this.mockMvc.perform(asyncDispatch(result)).andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
+    this.mockMvc.perform(asyncDispatch(result)).andExpect(status().isOk()).andExpect(jsonPath("$.content", hasSize(1)));
   }
 
   @Test
@@ -1174,7 +1167,7 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     final GrantedAuthority grantedAuthority = () -> "SCOPE_READ_SDC_DISTRICT_COLLECTION";
     final SecurityMockMvcRequestPostProcessors.OidcLoginRequestPostProcessor mockAuthority = oidcLogin().authorities(grantedAuthority);
 
-    this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + UUID.randomUUID() + "/monitorSdcSchoolCollections").with(mockAuthority)).andDo(print()).andExpect(status().isNotFound());
+    this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + UUID.randomUUID() + "/monitorSdcSchoolCollections").with(mockAuthority)).andExpect(status().isNotFound());
   }
 
   @Test
@@ -1217,7 +1210,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     when(this.restUtils.getSchoolBySchoolID(school2.getSchoolId())).thenReturn(Optional.of(school2));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID() + "/monitorSdcSchoolCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
@@ -1271,7 +1263,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
     when(this.restUtils.getSchoolBySchoolID(school1.getSchoolId())).thenReturn(Optional.of(school1));
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID() + "/monitorSdcSchoolCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].sdcSchoolCollectionId").value(sdcSchoolCollection1.getSdcSchoolCollectionID().toString()))
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections[0].schoolTitle").value("0000001 - School1"))
@@ -1298,7 +1289,6 @@ class SdcDistrictCollectionControllerTest extends BaseStudentDataCollectionAPITe
 
 
     this.mockMvc.perform(get(URL.BASE_URL_DISTRICT_COLLECTION + "/" + mockDistrictCollectionEntity.getSdcDistrictCollectionID() + "/monitorSdcSchoolCollections").with(mockAuthority))
-            .andDo(print())
             .andExpect(status().isOk())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections").isArray())
             .andExpect(MockMvcResultMatchers.jsonPath("$.monitorSdcSchoolCollections", hasSize(0)))

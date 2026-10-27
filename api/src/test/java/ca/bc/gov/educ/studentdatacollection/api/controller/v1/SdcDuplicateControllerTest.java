@@ -38,7 +38,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oidcLogin;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -79,7 +78,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
   SdcSchoolCollectionStudentHistoryRepository sdcSchoolCollectionStudentHistoryRepository;
 
   @AfterEach
-  public void after() {
+  void after() {
     this.sdcDuplicateRepository.deleteAll();
     this.sdcSchoolCollectionStudentHistoryRepository.deleteAll();
     this.sdcSchoolCollectionStudentRepository.deleteAll();
@@ -399,7 +398,7 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
                     get(URL.BASE_URL_DUPLICATE + "/sdcSchoolCollection/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
                             + "/duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
+            .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(2)));
   }
 
   @Test
@@ -429,6 +428,6 @@ class SdcDuplicateControllerTest extends BaseStudentDataCollectionAPITest {
     this.mockMvc.perform(
                     get(URL.BASE_URL_DUPLICATE + "/sdcSchoolCollection/" + sdcSchoolCollectionEntity.getSdcSchoolCollectionID()
                             + "/duplicates").with(mockAuthority))
-            .andDo(print()).andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
+            .andExpect(status().isOk()).andExpect(jsonPath("$", hasSize(0)));
   }
 }
