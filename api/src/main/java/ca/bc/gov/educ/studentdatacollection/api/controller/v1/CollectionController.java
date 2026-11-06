@@ -121,12 +121,20 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public List<MonitorSdcDistrictCollection> getMonitorSdcDistrictCollectionResponse(UUID collectionId) {
-    return this.collectionService.getMonitorSdcDistrictCollectionResponse(collectionId);
+    long startTime = System.currentTimeMillis();
+    log.info("getMonitorSdcDistrictCollectionResponse: Received request for collectionID :: {}", collectionId);
+    List<MonitorSdcDistrictCollection> result = this.collectionService.getMonitorSdcDistrictCollectionResponse(collectionId);
+    log.info("getMonitorSdcDistrictCollectionResponse: Completed in {} ms for collectionID :: {}. Returned {} district collections", System.currentTimeMillis() - startTime, collectionId, result.size());
+    return result;
   }
 
   @Override
   public MonitorIndySdcSchoolCollectionsResponse getMonitorIndySdcSchoolCollectionResponse(UUID collectionId) {
-    return this.collectionService.getMonitorIndySdcSchoolCollectionResponse(collectionId);
+    long startTime = System.currentTimeMillis();
+    log.info("getMonitorIndySdcSchoolCollectionResponse: Received request for collectionID :: {}", collectionId);
+    MonitorIndySdcSchoolCollectionsResponse result = this.collectionService.getMonitorIndySdcSchoolCollectionResponse(collectionId);
+    log.info("getMonitorIndySdcSchoolCollectionResponse: Completed in {} ms for collectionID :: {}", System.currentTimeMillis() - startTime, collectionId);
+    return result;
   }
 
   @Override
@@ -162,7 +170,11 @@ public class CollectionController implements CollectionEndpoint {
 
   @Override
   public List<SdcDuplicate> getProvinceDuplicates(UUID collectionID) {
-      return this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+      long startTime = System.currentTimeMillis();
+      log.info("getProvinceDuplicates: Received request for collectionID :: {}", collectionID);
+      List<SdcDuplicate> result = this.sdcDuplicatesService.getAllProvincialDuplicatesByCollectionID(collectionID).stream().map(duplicateMapper::toSdcDuplicate).toList();
+      log.info("getProvinceDuplicates: Completed in {} ms for collectionID :: {}. Returned {} duplicates", System.currentTimeMillis() - startTime, collectionID, result.size());
+      return result;
   }
 
   @Override
