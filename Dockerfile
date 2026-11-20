@@ -1,4 +1,9 @@
-FROM artifacts.developer.gov.bc.ca/docker-remote/maven:3.9.11-amazoncorretto-21-alpine AS build
+FROM artifacts.developer.gov.bc.ca/docker-remote/maven:3.9.11-amazoncorretto-21-alpine AS maven
+
+# Use the security-patched JDK for both compilation and the final runtime.
+FROM artifacts.developer.gov.bc.ca/docker-remote/amazoncorretto:21.0.13-alpine3.23 AS build
+COPY --from=maven /usr/share/maven /usr/share/maven
+ENV PATH="/usr/share/maven/bin:${PATH}"
 WORKDIR /workspace/app
 
 COPY api/pom.xml .
@@ -6,7 +11,7 @@ COPY api/src src
 RUN mvn package -DskipTests
 RUN mkdir -p target/dependency && (cd target/dependency; jar -xf ../*.jar)
 
-FROM artifacts.developer.gov.bc.ca/docker-remote/amazoncorretto:21.0.12-alpine3.23
+FROM artifacts.developer.gov.bc.ca/docker-remote/amazoncorretto:21.0.13-alpine3.23
 RUN apk upgrade --no-cache && apk add --no-cache fontconfig font-dejavu
 RUN addgroup -S spring && adduser -S -G spring -s /bin/sh spring
 RUN mkdir -p /logs

@@ -25,6 +25,8 @@ on:
 
 jobs:
   openshift-ci-cd:
+    permissions:
+      contents: write
     name: Tag Image
     runs-on: ubuntu-22.04
     environment: dev

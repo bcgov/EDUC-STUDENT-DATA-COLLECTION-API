@@ -56,6 +56,10 @@ on:
 
 jobs:
   build-and-deploy-dev:
+    permissions:
+      packages: write
+      contents: read
+      issues: write
     name: Build and deploy to OpenShift DEV
     runs-on: ubuntu-22.04
     environment: dev
@@ -197,6 +201,8 @@ jobs:
         target: 'https://${{ env.APP_NAME }}-${{ env.OPENSHIFT_NAMESPACE_DEV }}-dev.apps.silver.devops.gov.bc.ca/v3/api-docs'
 
   deploy-test:
+    permissions:
+      contents: read
     name: Deploy to OpenShift TEST
     needs: build-and-deploy-dev
     runs-on: ubuntu-22.04
